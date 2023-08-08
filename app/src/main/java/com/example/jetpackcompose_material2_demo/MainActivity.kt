@@ -2,6 +2,7 @@ package com.example.jetpackcompose_material2_demo
 
 import android.app.AlertDialog
 import android.app.DatePickerDialog
+import android.app.TimePickerDialog
 import android.os.Bundle
 import android.widget.DatePicker
 import androidx.activity.ComponentActivity
@@ -320,6 +321,48 @@ fun DatePickerC() {
             }
         ) {
             Text(text = "Select a date")
+        }
+    }
+}
+
+@Preview
+@Composable
+fun TimePickerC() {
+    val context = LocalContext.current
+    val calendar = Calendar.getInstance()
+
+    // Fetching current hour, and minute
+    val hour = calendar[Calendar.HOUR_OF_DAY]
+    val minute = calendar[Calendar.MINUTE]
+
+    var selectedTimeText by remember { mutableStateOf("") }
+
+    val timePicker = TimePickerDialog(
+        context,
+        { _, selectedHour: Int, selectedMinute: Int ->
+            selectedTimeText = "$selectedHour:$selectedMinute"
+        }, hour, minute, false
+    )
+
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = if (selectedTimeText.isNotEmpty()) {
+                "Selected time is $selectedTimeText"
+            } else {
+                "Please select the time"
+            }
+        )
+
+        Button(
+            onClick = {
+                timePicker.show()
+            }
+        ) {
+            Text(text = "Select time")
         }
     }
 }
