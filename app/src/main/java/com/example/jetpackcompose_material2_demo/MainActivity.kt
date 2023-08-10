@@ -1,6 +1,5 @@
 package com.example.jetpackcompose_material2_demo
 
-import android.app.AlertDialog
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
 import android.os.Bundle
@@ -43,7 +42,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -52,25 +50,28 @@ import androidx.constraintlayout.compose.ChainStyle
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.ConstraintSet
 import androidx.constraintlayout.compose.Dimension
+import androidx.navigation.compose.rememberNavController
+import com.example.jetpackcompose_material2_demo.navigation.NavigationGraph
 import com.example.jetpackcompose_material2_demo.ui.theme.JetPackCompose_Material2_DemoTheme
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import java.util.Calendar
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            JetPackCompose_Material2_DemoTheme {
+            /*JetPackCompose_Material2_DemoTheme {
                 // A surface container using the 'background' color from the theme
-                /*Surface(
+                Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colors.background
                 ) {
                     Greeting("Android")
-                }*/
-
-                AlertDialogC()
-            }
+                }
+            }*/
+            NavigationGraph(navController = rememberNavController())
         }
     }
 }
