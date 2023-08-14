@@ -12,5 +12,6 @@ data class NoteModel(
     val id: Int? = null,
     var title: String = "",
     var description: String = "",
-    var hobby: String = "",
+    var hobbies: String = "",
+    var isImp: Boolean = false,
 ):Parcelable

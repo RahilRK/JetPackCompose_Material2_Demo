@@ -14,6 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -25,6 +26,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.example.jetpackcompose_material2_demo.data.model.NoteModel
 import com.example.jetpackcompose_material2_demo.ui.add_note.component.AppBarC
+import com.example.jetpackcompose_material2_demo.ui.add_note.component.HobbyCheckBox
+import com.example.jetpackcompose_material2_demo.ui.add_note.component.SwitchC
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -44,7 +47,7 @@ fun UpdateNoteScreen(navController: NavHostController, id: String) {
     when (val result = noteModelState.value) {
 
         UpdateNoteState.Loading -> {
-            Log.d("HomeScreenContent", "Loading: ")
+            Log.d("UpdateNoteScreen", "Loading: ")
         }
 
         is UpdateNoteState.Success -> {
@@ -58,26 +61,33 @@ fun UpdateNoteScreen(navController: NavHostController, id: String) {
                     showBackArrow = true,
                     showSubmitIcon = getNoteModel.description.isNotBlank(),
                     onSubmitClick = {
-                try {
-                    val getId = viewModel.updateNote(
-                        NoteModel(
-                            id = getNoteModel.id,
-                            title = getNoteModel.title,
-                            description = getNoteModel.description
-                        )
-                    )
-                    coroutineScope.launch(Dispatchers.Main) {
-                        getId.collect { id ->
-                            if (id > 0) {
-                                navController.popBackStack()
-                                Toast.makeText(context, "Note Updated successfully", Toast.LENGTH_SHORT).show()
+                        try {
+                            val getId = viewModel.updateNote(
+                                NoteModel(
+                                    id = getNoteModel.id,
+                                    title = getNoteModel.title,
+                                    description = getNoteModel.description,
+                                    hobbies = viewModel.selectedHobbyList.toList().toString(),
+                                    isImp = viewModel.markAsImp.value
+                                )
+                            )
+                            coroutineScope.launch(Dispatchers.Main) {
+                                getId.collect { id ->
+                                    if (id > 0) {
+                                        navController.popBackStack()
+                                        Toast.makeText(
+                                            context,
+                                            "Note Updated successfully",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    }
+                                }
                             }
+                        } catch (e: Exception) {
+                            Log.d("UpdateNoteScreen", "UpdateNoteScreen: ${e.stackTrace}")
+                            Toast.makeText(context, "Error in updating note", Toast.LENGTH_SHORT)
+                                .show()
                         }
-                    }
-                } catch (e: Exception) {
-                    Log.d("UpdateNoteScreen", "UpdateNoteScreen: ${e.stackTrace}")
-                    Toast.makeText(context, "Error in updating note", Toast.LENGTH_SHORT).show()
-                }
                     },
                     onBackPress = {
                         navController.popBackStack()
@@ -121,12 +131,29 @@ fun UpdateNoteScreen(navController: NavHostController, id: String) {
                         .height(160.dp)
                         .padding(horizontal = 8.dp, vertical = 8.dp)
                 )
+
+                val list = remember {
+                    mutableStateOf(viewModel.hobbyCheckBoxList)
+                }
+                HobbyCheckBox(onCheckedEvent = { selectedHobby: String, isChecked: Boolean ->
+
+                    if (isChecked) {
+                        viewModel.addHobbyToList(selectedHobby)
+                    } else {
+                        viewModel.removeHobbyToList(selectedHobby)
+                    }
+//                    Log.d("UpdateNoteScreen", "selectedHobbyList: ${viewModel.selectedHobbyList.toList()}")
+                }, list.value)
+
+                SwitchC(onCheckedEvent = {isChecked ->
+                    viewModel.switchEvent(isChecked)
+                }, viewModel.markAsImp.collectAsState().value)
             }
 
         }
 
         is UpdateNoteState.Error -> {
-            Log.d("HomeScreenContent", "Error: ${result.exception}")
+            Log.d("UpdateNoteScreen", "Error: ${result.exception}")
             Toast.makeText(context, "Unable to load note detail", Toast.LENGTH_SHORT).show()
         }
     }

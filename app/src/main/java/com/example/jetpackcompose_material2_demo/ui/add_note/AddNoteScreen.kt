@@ -11,8 +11,10 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -27,6 +29,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.jetpackcompose_material2_demo.data.model.NoteModel
 import com.example.jetpackcompose_material2_demo.ui.add_note.component.AppBarC
 import com.example.jetpackcompose_material2_demo.ui.add_note.component.HobbyCheckBox
+import com.example.jetpackcompose_material2_demo.ui.add_note.component.SwitchC
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -55,7 +58,9 @@ fun AddNoteScreen(navController: NavHostController = rememberNavController()) {
                     val getId = viewModel.saveNote(
                         NoteModel(
                             title = getNoteModel.title,
-                            description = getNoteModel.description
+                            description = getNoteModel.description,
+                            hobbies = viewModel.selectedHobbyList.toList().toString(),
+                            isImp = viewModel.markAsImp.value
                         )
                     )
                     coroutineScope.launch(Dispatchers.Main) {
@@ -121,8 +126,23 @@ fun AddNoteScreen(navController: NavHostController = rememberNavController()) {
                 .padding(horizontal = 8.dp, vertical = 8.dp)
         )
 
-        /*HobbyCheckBox(onCheckedEvent = {selectedHobbyList ->
-            Log.d("AddNoteScreen", "HobbyCheckBox: $selectedHobbyList")
-        })*/
+        val list = remember {
+            mutableStateOf(viewModel.hobbyCheckBoxList)
+        }
+        HobbyCheckBox(onCheckedEvent = {selectedHobby: String, isChecked: Boolean ->
+
+            if(isChecked) {
+                viewModel.addHobbyToList(selectedHobby)
+            }
+            else {
+                viewModel.removeHobbyToList(selectedHobby)
+            }
+//            Log.d("AddNoteScreen", "selectedHobbyList: ${viewModel.selectedHobbyList.toList()}")
+        }, list.value)
+
+
+        SwitchC(onCheckedEvent = {isChecked ->
+            viewModel.switchEvent(isChecked)
+        }, viewModel.markAsImp.collectAsState().value)
     }
 }
