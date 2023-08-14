@@ -1,6 +1,7 @@
 package com.example.jetpackcompose_material2_demo.ui.add_note.component
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -23,10 +24,13 @@ fun BGColorC() {
     val Yellow = Color(0xFFffaf47)
 
     Column(modifier = Modifier.fillMaxWidth()) {
-        Box(modifier = Modifier
-            .size(100.dp)
-            .clip(shape = CircleShape)
-            .background(Green)) {
+        Box(
+            modifier = Modifier
+                .size(100.dp)
+                .clip(shape = CircleShape)
+                .background(Green)
+                .border(width = 2.dp, color = Color.Black, shape = CircleShape)
+        ) {
 
         }
     }
