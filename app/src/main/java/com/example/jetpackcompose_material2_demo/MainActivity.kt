@@ -232,6 +232,7 @@ fun ViewPagerItemC(viewPagerData: ViewPagerData) {
     }
 }
 
+
 data class ViewPagerData(
     val color: Color,
     val text: String

@@ -24,8 +24,10 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import com.example.jetpackcompose_material2_demo.data.model.ColorModel
 import com.example.jetpackcompose_material2_demo.data.model.NoteModel
 import com.example.jetpackcompose_material2_demo.ui.add_note.component.AppBarC
+import com.example.jetpackcompose_material2_demo.ui.add_note.component.BGColorC
 import com.example.jetpackcompose_material2_demo.ui.add_note.component.HobbyCheckBox
 import com.example.jetpackcompose_material2_demo.ui.add_note.component.SwitchC
 import kotlinx.coroutines.CoroutineScope
@@ -68,7 +70,9 @@ fun UpdateNoteScreen(navController: NavHostController, id: String) {
                                     title = getNoteModel.title,
                                     description = getNoteModel.description,
                                     hobbies = viewModel.selectedHobbyList.toList().toString(),
-                                    isImp = viewModel.markAsImp.value
+                                    isImp = viewModel.markAsImp.value,
+                                    color = viewModel.selectedColor.value.colorName,
+                                    bgColor = viewModel.selectedColor.value.color.toString(),
                                 )
                             )
                             coroutineScope.launch(Dispatchers.Main) {
@@ -132,6 +136,19 @@ fun UpdateNoteScreen(navController: NavHostController, id: String) {
                         .padding(horizontal = 8.dp, vertical = 8.dp)
                 )
 
+                /*val colorList = remember {
+                    mutableStateOf(viewModel.colorList)
+                }.value.map {
+                    it.copy(isSelected = getNoteModel.bgColor == it.colorName)
+                }.toMutableList()*/
+
+                BGColorC(
+                    colorList = viewModel.colorList,
+                    onClickEvent = { pos: Int, model: ColorModel ->
+
+                        viewModel.changeColor(position = pos, model = model)
+                    })
+
                 val list = remember {
                     mutableStateOf(viewModel.hobbyCheckBoxList)
                 }
@@ -145,7 +162,7 @@ fun UpdateNoteScreen(navController: NavHostController, id: String) {
 //                    Log.d("UpdateNoteScreen", "selectedHobbyList: ${viewModel.selectedHobbyList.toList()}")
                 }, list.value)
 
-                SwitchC(onCheckedEvent = {isChecked ->
+                SwitchC(onCheckedEvent = { isChecked ->
                     viewModel.switchEvent(isChecked)
                 }, viewModel.markAsImp.collectAsState().value)
             }
