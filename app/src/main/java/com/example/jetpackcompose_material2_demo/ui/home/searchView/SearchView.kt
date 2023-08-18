@@ -2,6 +2,8 @@ package com.example.jetpackcompose_material2_demo.ui.home.searchView
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Icon
@@ -47,7 +49,7 @@ fun MainAppBar(
 @Composable
 fun DefaultAppBar(onSearchClicked: () -> Unit) {
     TopAppBar(title = {
-        Text(text = "Home", color = Color.White)
+        Text(text = "Home")
     }, actions = {
         IconButton(onClick = {
             onSearchClicked()
@@ -55,10 +57,9 @@ fun DefaultAppBar(onSearchClicked: () -> Unit) {
             Icon(
                 imageVector = Icons.Filled.Search,
                 contentDescription = "Search Icon",
-                tint = Color.White
             )
         }
-    }, contentColor = MaterialTheme.colors.primary)
+    }, contentColor = Color.Black, backgroundColor = Color.White)
 }
 
 @Preview
@@ -80,18 +81,21 @@ fun SearchAppBar(
         modifier = Modifier
             .fillMaxWidth()
             .height(64.dp),
-        color = MaterialTheme.colors.primary,
+        color = Color.White,
     ) {
         TextField(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth().padding(top = 8.dp, start = 5.dp, end = 5.dp),
             value = text,
             onValueChange = { onTextChange(it) },
             placeholder = {
-                Text(text = "Search here", color = Color.White.copy(alpha = 0.5f))
+                Text(
+                    text = "Search by title or description",
+                    color = Color.Black.copy(alpha = 0.5f)
+                )
             },
             textStyle = TextStyle(
                 fontSize = MaterialTheme.typography.body1.fontSize,
-                color = Color.White
+                color = Color.Black
             ),
             singleLine = true,
             leadingIcon = {
@@ -99,7 +103,7 @@ fun SearchAppBar(
                     Icon(
                         imageVector = Icons.Filled.Search,
                         contentDescription = "",
-                        tint = Color.White.copy(alpha = 0.5f)
+                        tint = Color.Black.copy(alpha = 0.5f)
                     )
                 }
             },
@@ -114,7 +118,7 @@ fun SearchAppBar(
                     Icon(
                         imageVector = Icons.Filled.Close,
                         contentDescription = "",
-                        tint = Color.White
+                        tint = Color.Black
                     )
                 }
             },
@@ -127,9 +131,16 @@ fun SearchAppBar(
                 }
             ),
             colors = TextFieldDefaults.textFieldColors(
-                backgroundColor = Color.Transparent,
-                cursorColor = Color.White.copy(alpha = 0.5f),
+                backgroundColor = Color.Black.copy(alpha = 0.05f),
+                cursorColor = Color.Black.copy(alpha = 0.5f),
+                focusedIndicatorColor = Color.Transparent,
+                unfocusedIndicatorColor = Color.Transparent,
+                disabledIndicatorColor = Color.Transparent,
+            ),
+            shape = RoundedCornerShape(
+                32.dp
             )
+
         )
     }
 }

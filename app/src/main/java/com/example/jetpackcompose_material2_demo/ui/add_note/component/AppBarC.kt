@@ -40,9 +40,9 @@ fun AppBarC(
                 Icon(
                     imageVector = Icons.Filled.Done,
                     contentDescription = "",
-                    tint = Color.White
+                    tint = Color.Black
                 )
             }
         }
-    })
+    }, backgroundColor = Color.White)
 }

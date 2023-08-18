@@ -64,5 +64,8 @@ class HomeViewModel @Inject constructor(
     }
     fun updateSearchTextState(newValue: String) {
         _searchTextState.value = newValue
+        if(newValue.isNotEmpty()) {
+            getAllNotes()
+        }
     }
 }

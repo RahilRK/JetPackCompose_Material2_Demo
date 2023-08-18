@@ -50,7 +50,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterialApi::class)
 @Preview
 @Composable
 fun HomeScreenContent(onItemClick: (model: NoteModel) -> Unit = {}) {
@@ -58,6 +57,8 @@ fun HomeScreenContent(onItemClick: (model: NoteModel) -> Unit = {}) {
     val viewModel: HomeViewModel = hiltViewModel()
     val context = LocalContext.current
     val coroutineScope: CoroutineScope = rememberCoroutineScope()
+    val searchKeyWord = viewModel.searchTextState.value
+    Log.d("TAG", "searchText: $searchKeyWord")
 
     val noteListState = viewModel.list.collectAsState(initial = HomeViewState.Loading)
     when (val result = noteListState.value) {
@@ -68,86 +69,20 @@ fun HomeScreenContent(onItemClick: (model: NoteModel) -> Unit = {}) {
         is HomeViewState.Success -> {
             Log.d("HomeScreenContent", "Success: ${result.task}")
 
-            val myList = result.task
+            var myList: List<NoteModel>
+            myList = result.task
+            if (searchKeyWord.isNotEmpty()) {
+                myList = myList.filter {
+                    it.title.contains(Regex(searchKeyWord)) || it.description.contains(Regex(searchKeyWord))
+                }
+            }
+
+
             LazyColumn(
                 state = rememberLazyListState(),
                 content = {
                     itemsIndexed(myList) { index: Int, model: NoteModel ->
 
-                        //todo Swipe to Dismiss Item
-                        /*val mState = rememberDismissState(
-                            confirmStateChange = {
-                                if (it == DismissValue.DismissedToStart) {
-                                    val re = myList.remove(model)
-                                    Toast.makeText(context, re.toString(), Toast.LENGTH_SHORT).show()
-
-                                   *//* val getId = viewModel.deleteNote(model.id ?: -1)
-                                    coroutineScope.launch(Dispatchers.Main) {
-                                        getId.collect { id ->
-                                            if (id > 0) {
-                                                Toast.makeText(
-                                                    context, "Note removed successfully",
-                                                    Toast.LENGTH_SHORT
-                                                ).show()
-                                            }
-                                        }
-                                    }*//*
-                                }
-                                true
-                            }
-                        )
-
-                        SwipeToDismiss(state = mState, background = {
-                            val color =
-                                when (mState.dismissDirection) {
-                                    DismissDirection.StartToEnd -> {
-                                        Color.Transparent
-                                    }
-                                    DismissDirection.EndToStart -> {
-                                        Color.Red
-                                    }
-                                    else -> {
-                                        Color.Transparent
-                                    }
-                                }
-
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .background(color = color)
-                                    .padding(10.dp)
-                            ) {
-                                Image(
-                                    modifier = Modifier
-                                        .size(32.dp)
-                                        .align(Alignment.CenterEnd),
-                                    imageVector = Icons.Outlined.DeleteOutline,
-                                    contentDescription = null,
-                                    colorFilter = ColorFilter.tint(Color.White)
-                                )
-                            }
-                        }, dismissContent = {
-                            NoteListItem(model,
-                                onDeleteClick = {
-*//*
-                                    val getId = viewModel.deleteNote(model.id ?: -1)
-                                    coroutineScope.launch(Dispatchers.Main) {
-                                        getId.collect { id ->
-                                            if (id > 0) {
-                                                Toast.makeText(
-                                                    context, "Note removed successfully",
-                                                    Toast.LENGTH_SHORT
-                                                ).show()
-                                            }
-                                        }
-                                    }
-*//*
-                                }, onItemClick = {
-                                    onItemClick(model)
-                                })
-                        }, directions = setOf(DismissDirection.EndToStart))*/
-
-                        //todo Simple Item
                         NoteListItem(model,
                             onDeleteClick = {
                                 val getId = viewModel.deleteNote(model.id ?: -1)
