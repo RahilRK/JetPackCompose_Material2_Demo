@@ -1,11 +1,18 @@
 package com.example.jetpackcompose_material2_demo.ui.update_note
 
+import android.util.Log
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Person
+import androidx.compose.material.icons.outlined.Star
+import androidx.compose.material.icons.outlined.Timelapse
+import androidx.compose.material.icons.outlined.WorkOutline
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.jetpackcompose_material2_demo.data.model.ColorModel
+import com.example.jetpackcompose_material2_demo.data.model.DropDownCategoryModel
 import com.example.jetpackcompose_material2_demo.data.model.HobbyModel
 import com.example.jetpackcompose_material2_demo.data.model.NoteModel
 import com.example.jetpackcompose_material2_demo.repository.MainRepository
@@ -60,6 +67,19 @@ class UpdateNoteViewModel @Inject constructor(
     val selectedColor
         get() = _selectedColor
 
+    val dropDownCategoryList = mutableStateListOf(
+        DropDownCategoryModel(imageVector = Icons.Outlined.Person, title = "Miscellaneous"),
+        DropDownCategoryModel(imageVector = Icons.Outlined.Timelapse, title = "To-do"),
+        DropDownCategoryModel(imageVector = Icons.Outlined.Star, title = "Important"),
+        DropDownCategoryModel(imageVector = Icons.Outlined.WorkOutline, title = "Work")
+    )
+
+    private val _isDropDownExpanded = MutableStateFlow(false)
+    val isDropDownExpanded = _isDropDownExpanded.asStateFlow()
+
+    private val _selectedDropDownItem = MutableStateFlow(DropDownCategoryModel(imageVector = Icons.Outlined.Person,"Miscellaneous"))
+    val selectedDropDownItem = _selectedDropDownItem.asStateFlow()
+
     init {
         getNotesDetail()
     }
@@ -68,11 +88,15 @@ class UpdateNoteViewModel @Inject constructor(
         val id = savedStateHandle.get<String>("id") ?: "-1"
         repository.getNotesDetail(id.toInt()).distinctUntilChanged().collect { result ->
             try {
-                _noteModel.value = UpdateNoteState.Success(result)
-                checkedSelectedHobbies(result)
-                switchEvent(result.isImp)
-                autoSelectColor(result.color)
+                result?.let {
+                    _noteModel.value = UpdateNoteState.Success(it)
+                    checkedSelectedHobbies(it)
+                    switchEvent(it.isImp)
+                    autoSelectColor(it.color)
+                    autoSelectDropDownItem(it.tag)
+                }
             } catch (e: Exception) {
+                Log.e("Error", Log.getStackTraceString(e))
                 _noteModel.value = UpdateNoteState.Error(e)
             }
         }
@@ -148,4 +172,28 @@ class UpdateNoteViewModel @Inject constructor(
             }
         }
     }
+
+    fun deleteNote(id: Int): Flow<Int> =
+        flow {
+            //do long work
+            val id = repository.deleteNews(id)
+            emit(id)
+        }.flowOn(Dispatchers.IO)
+
+    fun changeIsDropDownExpanded(value: Boolean) {
+        _isDropDownExpanded.value = value
+    }
+    fun changeSelectedDropDownItem(value: DropDownCategoryModel) {
+        _selectedDropDownItem.value = value
+    }
+
+    private fun autoSelectDropDownItem(tag: String) {
+        for((i, getModel) in dropDownCategoryList.withIndex()) {
+            if(tag == getModel.title) {
+                dropDownCategoryList[i].isSelected = true
+                _selectedDropDownItem.value = getModel
+            }
+        }
+    }
+
 }

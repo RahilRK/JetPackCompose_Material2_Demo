@@ -30,6 +30,7 @@ import com.example.jetpackcompose_material2_demo.data.model.ColorModel
 import com.example.jetpackcompose_material2_demo.data.model.NoteModel
 import com.example.jetpackcompose_material2_demo.ui.add_note.component.AppBarC
 import com.example.jetpackcompose_material2_demo.ui.add_note.component.BGColorC
+import com.example.jetpackcompose_material2_demo.ui.add_note.component.CategoryDropDownC
 import com.example.jetpackcompose_material2_demo.ui.add_note.component.HobbyCheckBox
 import com.example.jetpackcompose_material2_demo.ui.add_note.component.SwitchC
 import kotlinx.coroutines.CoroutineScope
@@ -65,6 +66,21 @@ fun UpdateNoteScreen(navController: NavHostController, id: String) {
                 AppBarC(
                     title = "Update Note",
                     showBackArrow = true,
+                    showDeleteNoteIcon = true,
+                    onDeleteClick = {
+                        val getId = viewModel.deleteNote(id.toInt())
+                        coroutineScope.launch(Dispatchers.Main) {
+                            getId.collect { id ->
+                                if (id > 0) {
+                                    navController.popBackStack()
+                                    Toast.makeText(
+                                        context, "Note removed successfully",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
+                            }
+                        }
+                    },
                     showSubmitIcon = getNoteModel.description.isNotBlank(),
                     onSubmitClick = {
                         try {
@@ -77,6 +93,7 @@ fun UpdateNoteScreen(navController: NavHostController, id: String) {
                                     isImp = viewModel.markAsImp.value,
                                     color = viewModel.selectedColor.value.colorName,
                                     bgColor = viewModel.selectedColor.value.color.toString(),
+                                    tag = viewModel.selectedDropDownItem.value.title
                                 )
                             )
                             coroutineScope.launch(Dispatchers.Main) {
@@ -99,6 +116,18 @@ fun UpdateNoteScreen(navController: NavHostController, id: String) {
                     },
                     onBackPress = {
                         navController.popBackStack()
+                    }
+                )
+
+                CategoryDropDownC(
+                    list = viewModel.dropDownCategoryList,
+                    isExpanded = viewModel.isDropDownExpanded.collectAsState().value,
+                    onExpandCollapse = {
+                        viewModel.changeIsDropDownExpanded(it)
+                    },
+                    model = viewModel.selectedDropDownItem.collectAsState().value,
+                    onDropDownSelected = {
+                        viewModel.changeSelectedDropDownItem(it)
                     }
                 )
 
@@ -166,16 +195,16 @@ fun UpdateNoteScreen(navController: NavHostController, id: String) {
 //                    Log.d("UpdateNoteScreen", "selectedHobbyList: ${viewModel.selectedHobbyList.toList()}")
                 }, list.value)
 
-                SwitchC(onCheckedEvent = { isChecked ->
+                /*SwitchC(onCheckedEvent = { isChecked ->
                     viewModel.switchEvent(isChecked)
-                }, viewModel.markAsImp.collectAsState().value)
+                }, viewModel.markAsImp.collectAsState().value)*/
             }
 
         }
 
         is UpdateNoteState.Error -> {
-            Log.d("UpdateNoteScreen", "Error: ${result.exception}")
-            Toast.makeText(context, "Unable to load note detail", Toast.LENGTH_SHORT).show()
+            Log.e("UpdateNoteScreen", "Error: ${result.exception}")
+            Toast.makeText(context, "Something went wrong in update note", Toast.LENGTH_SHORT).show()
         }
     }
 }

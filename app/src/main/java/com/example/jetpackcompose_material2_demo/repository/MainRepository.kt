@@ -26,7 +26,7 @@ class MainRepository @Inject constructor(
         return noteDao.deleteNote(id)
     }
 
-    fun getNotesDetail(id: Int): Flow<NoteModel> =
+    fun getNotesDetail(id: Int): Flow<NoteModel?> =
         noteDao.getNoteDetail(id).flowOn(Dispatchers.IO).conflate()
 
     suspend fun updateNote(noteModel: NoteModel): Long {

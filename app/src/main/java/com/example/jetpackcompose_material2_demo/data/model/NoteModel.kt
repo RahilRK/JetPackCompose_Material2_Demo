@@ -16,4 +16,5 @@ data class NoteModel(
     var isImp: Boolean = false,
     var color: String = "",
     var bgColor: String = "",
+    var tag: String = "",
 ):Parcelable

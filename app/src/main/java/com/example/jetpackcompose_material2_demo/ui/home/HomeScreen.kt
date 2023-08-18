@@ -33,7 +33,7 @@ fun HomeScreen(navController: NavHostController) {
                 searchText = searchTextState,
                 onTextChange = {
                     viewModel.updateSearchTextState(newValue = it)
-                    Log.d("Home", "onTextChange: $it")
+                    Log.d("HomeScreen", "onTextChange: $it")
                 },
                 onCloseClick = {
                     viewModel.updateSearchTextState(newValue = "")
@@ -41,7 +41,7 @@ fun HomeScreen(navController: NavHostController) {
                 },
                 onSearchClick = {
 
-                    Log.d("Home", "onSearchClick: $it")
+                    Log.d("HomeScreen", "onSearchClick: $it")
                 },
                 onSearchTriggered = {
                     viewModel.updateSearchViewState(newValue = SearchViewState.OPENED)

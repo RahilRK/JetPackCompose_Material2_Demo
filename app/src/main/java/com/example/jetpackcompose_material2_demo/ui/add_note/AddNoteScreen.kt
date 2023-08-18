@@ -32,6 +32,7 @@ import com.example.jetpackcompose_material2_demo.data.model.ColorModel
 import com.example.jetpackcompose_material2_demo.data.model.NoteModel
 import com.example.jetpackcompose_material2_demo.ui.add_note.component.AppBarC
 import com.example.jetpackcompose_material2_demo.ui.add_note.component.BGColorC
+import com.example.jetpackcompose_material2_demo.ui.add_note.component.CategoryDropDownC
 import com.example.jetpackcompose_material2_demo.ui.add_note.component.HobbyCheckBox
 import com.example.jetpackcompose_material2_demo.ui.add_note.component.SwitchC
 import kotlinx.coroutines.CoroutineScope
@@ -51,9 +52,11 @@ fun AddNoteScreen(navController: NavHostController = rememberNavController()) {
     val viewModel: AddNoteViewModel = hiltViewModel()
     val context = LocalContext.current
 
-    Column(modifier = Modifier
-        .fillMaxSize()
-        .verticalScroll(state = rememberScrollState())) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(state = rememberScrollState())
+    ) {
 
         AppBarC(
             title = "Add Note",
@@ -69,6 +72,7 @@ fun AddNoteScreen(navController: NavHostController = rememberNavController()) {
                             isImp = viewModel.markAsImp.value,
                             color = viewModel.selectedColor.value.colorName,
                             bgColor = viewModel.selectedColor.value.color.toString(),
+                            tag = viewModel.selectedDropDownItem.value.title
                         )
                     )
                     coroutineScope.launch(Dispatchers.Main) {
@@ -81,12 +85,24 @@ fun AddNoteScreen(navController: NavHostController = rememberNavController()) {
                         }
                     }
                 } catch (e: Exception) {
-                    Log.d("AddNoteScreen", "AddNoteScreen: ${e.stackTrace}")
+                    Log.e("AddNoteScreen", "Error: ${e.stackTrace}")
                     Toast.makeText(context, "Error in adding note", Toast.LENGTH_SHORT).show()
                 }
             },
             onBackPress = {
                 navController.popBackStack()
+            }
+        )
+
+        CategoryDropDownC(
+            list = viewModel.dropDownCategoryList,
+            isExpanded = viewModel.isDropDownExpanded.collectAsState().value,
+            onExpandCollapse = {
+                viewModel.changeIsDropDownExpanded(it)
+            },
+            model = viewModel.selectedDropDownItem.collectAsState().value,
+            onDropDownSelected = {
+                viewModel.changeSelectedDropDownItem(it)
             }
         )
 
@@ -154,9 +170,8 @@ fun AddNoteScreen(navController: NavHostController = rememberNavController()) {
         }, list.value)
 
 
-        SwitchC(onCheckedEvent = { isChecked ->
+       /* SwitchC(onCheckedEvent = { isChecked ->
             viewModel.switchEvent(isChecked)
-        }, viewModel.markAsImp.collectAsState().value)
-
+        }, viewModel.markAsImp.collectAsState().value)*/
     }
 }

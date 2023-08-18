@@ -58,7 +58,7 @@ fun HomeScreenContent(onItemClick: (model: NoteModel) -> Unit = {}) {
     val context = LocalContext.current
     val coroutineScope: CoroutineScope = rememberCoroutineScope()
     val searchKeyWord = viewModel.searchTextState.value
-    Log.d("TAG", "searchText: $searchKeyWord")
+//    Log.d("HomeScreenContent", "searchText: $searchKeyWord")
 
     val noteListState = viewModel.list.collectAsState(initial = HomeViewState.Loading)
     when (val result = noteListState.value) {
@@ -73,7 +73,8 @@ fun HomeScreenContent(onItemClick: (model: NoteModel) -> Unit = {}) {
             myList = result.task
             if (searchKeyWord.isNotEmpty()) {
                 myList = myList.filter {
-                    it.title.contains(Regex(searchKeyWord)) || it.description.contains(Regex(searchKeyWord))
+                    it.title.contains(Regex(searchKeyWord)) || it.description.contains(Regex(
+                        searchKeyWord))
                 }
             }
 
@@ -108,7 +109,7 @@ fun HomeScreenContent(onItemClick: (model: NoteModel) -> Unit = {}) {
         }
 
         is HomeViewState.Error -> {
-            Log.d("HomeScreenContent", "Error: ${result.exception}")
+            Log.e("HomeScreenContent", "Error: ${result.exception}")
             Toast.makeText(context, "Unable to load notes", Toast.LENGTH_SHORT).show()
         }
     }
