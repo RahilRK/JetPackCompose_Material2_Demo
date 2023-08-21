@@ -21,6 +21,13 @@ class MainRepository @Inject constructor(
     fun getAllNotes(): Flow<List<NoteModel>> =
         noteDao.getAllNotes().flowOn(Dispatchers.IO).conflate()
 
+    fun getSearchNotes(keyWord: String): Flow<List<NoteModel>> =
+        noteDao.getSearchNotes(keyWord).flowOn(Dispatchers.IO).conflate()
+    fun getNotesByTag(mTag: String): Flow<List<NoteModel>> =
+        noteDao.getNotesByTag(mTag).flowOn(Dispatchers.IO).conflate()
+    fun getFilteredNotes(keyWord: String, mTag: String): Flow<List<NoteModel>> =
+        noteDao.getFilteredNotes(keyWord, mTag).flowOn(Dispatchers.IO).conflate()
+
     suspend fun deleteNews(id: Int): Int {
 
         return noteDao.deleteNote(id)

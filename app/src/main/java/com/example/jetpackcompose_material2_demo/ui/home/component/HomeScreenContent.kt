@@ -2,31 +2,20 @@ package com.example.jetpackcompose_material2_demo.ui.home.component
 
 import android.util.Log
 import android.widget.Toast
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
-import androidx.compose.material.DismissDirection
-import androidx.compose.material.DismissValue
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.SwipeToDismiss
 import androidx.compose.material.Text
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.DeleteOutline
-import androidx.compose.material.icons.outlined.DeleteOutline
 import androidx.compose.material.rememberDismissState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -42,6 +31,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.jetpackcompose_material2_demo.data.model.ColorModel
+import com.example.jetpackcompose_material2_demo.data.model.DropDownCategoryModel
 import com.example.jetpackcompose_material2_demo.data.model.NoteModel
 import com.example.jetpackcompose_material2_demo.ui.home.HomeViewModel
 import com.example.jetpackcompose_material2_demo.ui.home.HomeViewState
@@ -58,7 +49,7 @@ fun HomeScreenContent(onItemClick: (model: NoteModel) -> Unit = {}) {
     val context = LocalContext.current
     val coroutineScope: CoroutineScope = rememberCoroutineScope()
     val searchKeyWord = viewModel.searchTextState.value
-//    Log.d("HomeScreenContent", "searchText: $searchKeyWord")
+    val selectedTag = viewModel.selectedTagChip.value
 
     val noteListState = viewModel.list.collectAsState(initial = HomeViewState.Loading)
     when (val result = noteListState.value) {
@@ -69,43 +60,107 @@ fun HomeScreenContent(onItemClick: (model: NoteModel) -> Unit = {}) {
         is HomeViewState.Success -> {
             Log.d("HomeScreenContent", "Success: ${result.task}")
 
-            var myList: List<NoteModel>
-            myList = result.task
-            if (searchKeyWord.isNotEmpty()) {
+//            var myList: List<NoteModel>
+//            myList = result.task
+//            viewModel.updateNoteListData(myList)
+
+
+            /*if (searchKeyWord.isNotEmpty()) {
                 myList = myList.filter {
-                    it.title.contains(Regex(searchKeyWord)) || it.description.contains(Regex(
-                        searchKeyWord))
+                    it.title.contains(Regex(searchKeyWord)) || it.description.contains(
+                        Regex(
+                            searchKeyWord
+                        )
+                    )
+                }.toMutableList()
+                viewModel.updateNoteListData(myList)
+            }*/
+
+            /*if (searchKeyWord.isNotEmpty() && selectedTag == "") {
+                myList = myList.filter {
+                    it.title.contains(Regex(searchKeyWord)) || it.description.contains(
+                        Regex(
+                            searchKeyWord
+                        )
+                    )
                 }
-            }
+            } else if (searchKeyWord.isNotEmpty() && selectedTag != "") {
+                myList = myList.filter {
+                    (it.title.contains(Regex(searchKeyWord)) || it.description.contains(Regex(searchKeyWord)))
+                            && it.tag == selectedTag
+                }
+            }*/
 
 
-            LazyColumn(
-                state = rememberLazyListState(),
-                content = {
-                    itemsIndexed(myList) { index: Int, model: NoteModel ->
+            Column {
+                TagFilterChipsC(
+                    list = viewModel.tagChipList,
+                    onChipClickEvent = { pos: Int, model: DropDownCategoryModel ->
 
-                        NoteListItem(model,
-                            onDeleteClick = {
-                                val getId = viewModel.deleteNote(model.id ?: -1)
-                                coroutineScope.launch(Dispatchers.Main) {
-                                    getId.collect { id ->
-                                        if (id > 0) {
-                                            Toast.makeText(
-                                                context, "Note removed successfully",
-                                                Toast.LENGTH_SHORT
-                                            ).show()
+                        viewModel.selectTagChip(position = pos, model = model)
+                        /*if (pos == 0) {
+                            if (searchKeyWord.isEmpty()) {
+                                myList = result.task
+                            }
+                        } else {
+                            if (searchKeyWord.isEmpty()) {
+                                myList = myList.filter {
+                                    it.tag == viewModel.selectedTagChip.value
+                                }.toMutableList()
+                            }
+                            viewModel.updateNoteListData(myList)
+                            Toast.makeText(context, myList.size.toString(), Toast.LENGTH_SHORT).show()
+                        }*/
+                    })
+
+                LazyColumn(
+                    state = rememberLazyListState(),
+                    content = {
+//                        itemsIndexed(myList) { index: Int, model: NoteModel ->
+                        itemsIndexed(result.task) { index: Int, model: NoteModel ->
+
+                            NoteListItem(model,
+                                onDeleteClick = {
+                                    val getId = viewModel.deleteNote(model.id ?: -1)
+                                    coroutineScope.launch(Dispatchers.Main) {
+                                        getId.collect { id ->
+                                            if (id > 0) {
+                                                Toast.makeText(
+                                                    context, "Note removed successfully",
+                                                    Toast.LENGTH_SHORT
+                                                ).show()
+                                            }
                                         }
                                     }
-                                }
-                            }, onItemClick = {
-                                onItemClick(model)
-                            })
-                    }
-                })
+                                }, onItemClick = {
+                                    onItemClick(model)
+                                })
+                        }
+                    })
+            }
         }
 
         is HomeViewState.Empty -> {
             Log.d("HomeScreenContent", "Empty: ")
+            TagFilterChipsC(
+                list = viewModel.tagChipList,
+                onChipClickEvent = { pos: Int, model: DropDownCategoryModel ->
+
+                    viewModel.selectTagChip(position = pos, model = model)
+                    /*if (pos == 0) {
+                        if (searchKeyWord.isEmpty()) {
+                            myList = result.task
+                        }
+                    } else {
+                        if (searchKeyWord.isEmpty()) {
+                            myList = myList.filter {
+                                it.tag == viewModel.selectedTagChip.value
+                            }.toMutableList()
+                        }
+                        viewModel.updateNoteListData(myList)
+                        Toast.makeText(context, myList.size.toString(), Toast.LENGTH_SHORT).show()
+                    }*/
+                })
         }
 
         is HomeViewState.Error -> {
