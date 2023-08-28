@@ -6,6 +6,6 @@ sealed class HomeViewState {
     // Represents different states for the All Task screen
     object Empty : HomeViewState()
     object Loading : HomeViewState()
-    data class Success(val task: MutableList<NoteModel>) : HomeViewState()
+    data class Success(val task: MutableList<NoteModel>, val listType: String) : HomeViewState()
     data class Error(val exception: Throwable) : HomeViewState()
 }

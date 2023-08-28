@@ -14,6 +14,7 @@ data class NoteModel(
     var description: String = "",
     var hobbies: String = "",
     var isImp: Boolean = false,
+    var isSelected: Boolean = false,
     var color: String = "",
     var bgColor: String = "",
     var tag: String = "",

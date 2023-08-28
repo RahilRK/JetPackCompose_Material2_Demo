@@ -22,12 +22,13 @@ import com.example.jetpackcompose_material2_demo.data.model.DropDownCategoryMode
 @Composable
 fun TagFilterChipsC(
     list: MutableList<DropDownCategoryModel> = arrayListOf(),
-    onChipClickEvent: (pos: Int, model: DropDownCategoryModel) -> Unit = { pos: Int, model: DropDownCategoryModel -> }
+    totalNoteCount: Int = 0,
+    onChipClickEvent: (pos: Int, model: DropDownCategoryModel) -> Unit = { pos: Int, model: DropDownCategoryModel -> },
 ) {
     LazyRow(content = {
         itemsIndexed(list) { index, model ->
 
-            TagFilterChipsItemC(index, model, onChipClickEvent = onChipClickEvent)
+            TagFilterChipsItemC(index, totalNoteCount, model, onChipClickEvent = onChipClickEvent)
         }
     }, modifier = Modifier.padding(4.dp))
 
@@ -38,7 +39,8 @@ fun TagFilterChipsC(
 @Composable
 fun TagFilterChipsItemC(
     index: Int = -1,
-    model: DropDownCategoryModel = DropDownCategoryModel(),
+    totalNoteCount: Int = 0,
+    model: DropDownCategoryModel = DropDownCategoryModel(isSelected = true),
     onChipClickEvent: (pos: Int, model: DropDownCategoryModel) -> Unit = { pos: Int, model: DropDownCategoryModel -> }
 ) {
     FilterChip(
@@ -46,13 +48,13 @@ fun TagFilterChipsItemC(
         selected = model.isSelected,
         colors = ChipDefaults.filterChipColors(
             backgroundColor = if (model.isSelected)
-                MaterialTheme.colors.primary.copy(0.5f)
+                Color.Black
             else
                 Color.White
         ),
         shape = RoundedCornerShape(8.dp),
         border = if (model.isSelected)
-            BorderStroke(width = 0.dp, color = Color.White)
+            BorderStroke(width = 1.dp, color = Color.Transparent)
         else
             BorderStroke(width = 1.dp, color = Color.Black),
         onClick = {
@@ -61,7 +63,11 @@ fun TagFilterChipsItemC(
         },
         content = {
             Text(
-                text = model.title, color = if (model.isSelected)
+                text = if (index == 0)
+                    "${model.title} (${totalNoteCount})"
+                else
+                    model.title,
+                color = if (model.isSelected)
                     Color.White
                 else
                     Color.Black

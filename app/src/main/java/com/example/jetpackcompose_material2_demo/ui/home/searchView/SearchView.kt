@@ -16,6 +16,7 @@ import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.DeleteOutline
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -27,27 +28,37 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun MainAppBar(
+    isAnyNoteSelectedValue: Boolean,
     searchViewState: SearchViewState,
     searchText: String,
-    onTextChange: (String) -> Unit,
-    onCloseClick: () -> Unit,
-    onSearchClick: (String) -> Unit,
-    onSearchTriggered: () -> Unit,
+    onTextChange: (String) -> Unit = {},
+    onCloseClick: () -> Unit = {},
+    onSearchClick: (String) -> Unit = {},
+    onSearchTriggered: () -> Unit = {},
+    onMultipleDelete: () -> Unit = {},
 ) {
     if (searchViewState == SearchViewState.CLOSED) {
-        DefaultAppBar(onSearchClicked = onSearchTriggered)
+        DefaultAppBar(
+            isAnyNoteSelectedValue = isAnyNoteSelectedValue,
+            onSearchClicked = onSearchTriggered,
+            onMultipleDelete = onMultipleDelete,
+        )
     } else if (searchViewState == SearchViewState.OPENED) {
         SearchAppBar(
             text = searchText,
             onTextChange = onTextChange,
             onCloseClick = onCloseClick,
-            onSearchClick = onSearchClick
+            onSearchClick = onSearchClick,
         )
     }
 }
 
 @Composable
-fun DefaultAppBar(onSearchClicked: () -> Unit) {
+fun DefaultAppBar(
+    isAnyNoteSelectedValue: Boolean,
+    onSearchClicked: () -> Unit = {},
+    onMultipleDelete: () -> Unit = {}
+) {
     TopAppBar(title = {
         Text(text = "Home")
     }, actions = {
@@ -59,13 +70,25 @@ fun DefaultAppBar(onSearchClicked: () -> Unit) {
                 contentDescription = "Search Icon",
             )
         }
+
+        if (isAnyNoteSelectedValue) {
+            IconButton(onClick = {
+                onMultipleDelete()
+            }) {
+                Icon(
+                    imageVector = Icons.Filled.DeleteOutline,
+                    contentDescription = "Deleted Icon",
+                    tint = Color.Red
+                )
+            }
+        }
     }, contentColor = Color.Black, backgroundColor = Color.White)
 }
 
 @Preview
 @Composable
 fun DefaultAppBarPreview() {
-    DefaultAppBar(onSearchClicked = {
+    DefaultAppBar(isAnyNoteSelectedValue = false, onSearchClicked = {
 
     })
 }
@@ -84,7 +107,9 @@ fun SearchAppBar(
         color = Color.White,
     ) {
         TextField(
-            modifier = Modifier.fillMaxWidth().padding(top = 8.dp, start = 5.dp, end = 5.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 8.dp, start = 5.dp, end = 5.dp),
             value = text,
             onValueChange = { onTextChange(it) },
             placeholder = {

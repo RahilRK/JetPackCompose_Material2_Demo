@@ -29,7 +29,9 @@ fun AppBarC(
     TopAppBar(title = { Text(text = title) }, navigationIcon = {
 
         if (showBackArrow) {
-            IconButton(onClick = { onBackPress() }) {
+            IconButton(onClick = {
+                onBackPress()
+            }) {
                 Icon(
                     imageVector = Icons.Filled.ArrowBack,
                     contentDescription = ""

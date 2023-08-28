@@ -248,7 +248,7 @@ val viewPagerDataList = listOf<ViewPagerData>(
 @Composable
 fun AlertDialogC() {
 
-    val dialogueState = remember { mutableStateOf<Boolean>(false) }
+    val dialogueState = remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier.fillMaxSize(),

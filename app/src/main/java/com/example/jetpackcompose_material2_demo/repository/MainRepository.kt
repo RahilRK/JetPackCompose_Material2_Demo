@@ -40,4 +40,10 @@ class MainRepository @Inject constructor(
 
         return noteDao.updateNote(noteModel)
     }
+
+    suspend fun deleteMultipleNotes(value: Boolean): Int {
+
+        return noteDao.deleteMultipleNotes(value)
+    }
+
 }

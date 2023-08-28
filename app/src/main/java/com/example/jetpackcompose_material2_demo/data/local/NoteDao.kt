@@ -30,4 +30,7 @@ interface NoteDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun updateNote(noteModel: NoteModel) : Long
+
+    @Query("DELETE FROM notes where isSelected =:value")
+    suspend fun deleteMultipleNotes(value: Boolean): Int
 }

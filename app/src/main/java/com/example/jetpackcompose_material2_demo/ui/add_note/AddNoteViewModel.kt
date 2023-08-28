@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Star
+import androidx.compose.material.icons.outlined.StarOutline
 import androidx.compose.material.icons.outlined.Timelapse
 import androidx.compose.material.icons.outlined.WorkOutline
 import androidx.compose.runtime.mutableStateListOf
@@ -59,7 +60,7 @@ class AddNoteViewModel @Inject constructor(
     val dropDownCategoryList = mutableStateListOf(
         DropDownCategoryModel(imageVector = Icons.Outlined.Person, title = "Miscellaneous"),
         DropDownCategoryModel(imageVector = Icons.Outlined.Timelapse, title = "To-do"),
-        DropDownCategoryModel(imageVector = Icons.Outlined.Star, title = "Important"),
+        DropDownCategoryModel(imageVector = Icons.Outlined.StarOutline, title = "Important"),
         DropDownCategoryModel(imageVector = Icons.Outlined.WorkOutline, title = "Work")
     )
 
