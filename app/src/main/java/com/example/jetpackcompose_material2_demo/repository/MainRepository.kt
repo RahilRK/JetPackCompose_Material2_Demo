@@ -2,6 +2,8 @@ package com.example.jetpackcompose_material2_demo.repository
 
 import com.example.jetpackcompose_material2_demo.data.local.NoteDao
 import com.example.jetpackcompose_material2_demo.data.model.NoteModel
+import com.example.jetpackcompose_material2_demo.data.remote.ApiInterface
+import com.example.jetpackcompose_material2_demo.data.remoteModel.Category
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -11,8 +13,9 @@ import kotlinx.coroutines.flow.flowOn
 import javax.inject.Inject
 
 class MainRepository @Inject constructor(
-    private val noteDao: NoteDao
-) {
+    private val noteDao: NoteDao,
+    private val apiInterface: ApiInterface,
+    ) {
     suspend fun saveNews(noteModel: NoteModel): Long {
 
         return noteDao.saveNote(noteModel)
@@ -45,5 +48,8 @@ class MainRepository @Inject constructor(
 
         return noteDao.deleteMultipleNotes(value)
     }
+
+    //todo api calls
+    suspend fun getCategoryList() = apiInterface.getCategoryList()
 
 }

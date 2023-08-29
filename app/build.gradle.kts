@@ -98,4 +98,14 @@ dependencies {
     val hilt_version = "2.44"
     implementation ("com.google.dagger:hilt-android:$hilt_version")
     kapt ("com.google.dagger:hilt-android-compiler:$hilt_version")
+
+    /*Retrofit*/
+    implementation ("com.squareup.retrofit2:retrofit:2.6.0")
+    implementation ("com.squareup.retrofit2:converter-gson:2.6.0")
+    implementation ("com.squareup.retrofit2:converter-scalars:2.5.0")
+    implementation ("com.jakewharton.retrofit:retrofit2-kotlin-coroutines-adapter:0.9.2")
+    implementation ("com.squareup.okhttp3:logging-interceptor:4.5.0")
+
+    /*Coil for Image*/
+    implementation("io.coil-kt:coil-compose:2.4.0")
 }

@@ -26,6 +26,7 @@ import androidx.compose.material.BottomSheetValue
 import androidx.compose.material.Button
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.TextButton
 import androidx.compose.material.rememberBottomSheetScaffoldState
@@ -50,8 +51,7 @@ import androidx.constraintlayout.compose.ChainStyle
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.ConstraintSet
 import androidx.constraintlayout.compose.Dimension
-import androidx.navigation.compose.rememberNavController
-import com.example.jetpackcompose_material2_demo.navigation.NavigationGraph
+import com.example.jetpackcompose_material2_demo.mealAppUi.component.Navigation
 import com.example.jetpackcompose_material2_demo.ui.theme.JetPackCompose_Material2_DemoTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -62,16 +62,17 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            /*JetPackCompose_Material2_DemoTheme {
+            JetPackCompose_Material2_DemoTheme {
                 // A surface container using the 'background' color from the theme
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colors.background
                 ) {
-                    Greeting("Android")
+//                    Greeting("Android")
+                    Navigation()
                 }
-            }*/
-            NavigationGraph(navController = rememberNavController())
+            }
+//            NavigationGraph(navController = rememberNavController())
         }
     }
 }
