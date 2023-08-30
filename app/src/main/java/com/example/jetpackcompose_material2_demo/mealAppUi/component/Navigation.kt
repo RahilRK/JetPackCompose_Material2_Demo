@@ -1,5 +1,6 @@
 package com.example.jetpackcompose_material2_demo.mealAppUi.component
 
+import android.util.Log
 import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material.Icon
@@ -13,7 +14,10 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.jetpackcompose_material2_demo.mealNavigation.NavigationController
 import com.example.jetpackcompose_material2_demo.ui.theme.meal_color_primary
+import com.example.jetpackcompose_material2_demo.util.Constants.COUNTRY_MEAL_ROUTE
 import com.example.jetpackcompose_material2_demo.util.Constants.HOME_ROUTE
+import com.example.jetpackcompose_material2_demo.util.Constants.INGREDIENTS_MEAL_ROUTE
+import com.example.jetpackcompose_material2_demo.util.Constants.Navigation_TAG
 import com.example.jetpackcompose_material2_demo.util.NavigationItem
 
 @Composable
@@ -25,6 +29,7 @@ fun Navigation() {
 
     val items = listOf(
         NavigationItem.Home,
+        NavigationItem.SearchMeal,
         NavigationItem.CountryMeal,
         NavigationItem.IngredientsMeal
     )
@@ -54,7 +59,17 @@ fun Navigation() {
 */
                             navController.navigate(it.route) {
                                 navController.graph.startDestinationRoute?.let { route ->
-//                                    Log.d(Navigation_TAG, "startDestinationRoute: $route")
+                                    Log.d(Navigation_TAG, "startDestinationRoute: ${it.route}")
+
+                                    /*if ((it.route == HOME_ROUTE) ||
+                                        (it.route == COUNTRY_MEAL_ROUTE) ||
+                                        (it.route == INGREDIENTS_MEAL_ROUTE)
+                                    ) {
+                                        popUpTo(route) {
+                                            saveState = true
+                                        }
+                                    }*/
+
                                     popUpTo(route) {
                                         saveState = true
                                     }

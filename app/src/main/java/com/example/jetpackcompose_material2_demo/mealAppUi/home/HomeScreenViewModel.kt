@@ -1,12 +1,11 @@
 package com.example.jetpackcompose_material2_demo.mealAppUi.home
 
-import android.util.Log
-import androidx.compose.foundation.ScrollState
-import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.toMutableStateList
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.jetpackcompose_material2_demo.data.remoteModel.Category
+import com.example.jetpackcompose_material2_demo.mealAppUi.home.state.CategoryListState
+import com.example.jetpackcompose_material2_demo.mealAppUi.home.state.MealListState
 import com.example.jetpackcompose_material2_demo.repository.MainRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -22,15 +21,19 @@ class HomeScreenViewModel @Inject constructor(
 
     private val TAG = "HomeScreenViewModel"
 
-    private var _categoryList = MutableStateFlow<HomeScreenState>(HomeScreenState.Loading)
-    val categoryList: StateFlow<HomeScreenState>
+    private var _categoryList = MutableStateFlow<CategoryListState>(CategoryListState.Loading)
+    val categoryList: StateFlow<CategoryListState>
         get() = _categoryList
 
+    private var _mealList = MutableStateFlow<MealListState>(MealListState.Loading)
+    val mealList: StateFlow<MealListState>
+        get() = _mealList
+
     init {
-        getData()
+        getCategoryList()
     }
 
-    private fun getData() = viewModelScope.launch(Dispatchers.IO) {
+    private fun getCategoryList() = viewModelScope.launch(Dispatchers.IO) {
 
         val response = repository.getCategoryList()
 
@@ -40,22 +43,27 @@ class HomeScreenViewModel @Inject constructor(
 
                     val list = result.categories.toMutableList()
 
-                    update(0, list[0].copy(isSelected = true), list)
-                    _categoryList.value = HomeScreenState.Success(list.toMutableStateList())
+                    selectCategory(0, list[0].copy(isSelected = true), list)
+                    getMealList(list[0].strCategory)
+                    _categoryList.value = CategoryListState.Success(list.toMutableStateList())
                 } else {
 
-                    _categoryList.value = HomeScreenState.Empty
+                    _categoryList.value = CategoryListState.Empty
                 }
 
             } ?: kotlin.run {
 
                 val error = response.errorBody()?.charStream().toString()
-                _categoryList.value = HomeScreenState.Error(error)
+                _categoryList.value = CategoryListState.Error(error)
             }
+        }
+        else {
+            val error = response.errorBody()?.charStream().toString()
+            _categoryList.value = CategoryListState.Error(error)
         }
     }
 
-    fun update(pos: Int, model: Category, list: MutableList<Category>) {
+    fun selectCategory(pos: Int, model: Category, list: MutableList<Category>) {
         for (mModel in list) {
             if (mModel.isSelected) {
                 mModel.isSelected = false
@@ -63,6 +71,36 @@ class HomeScreenViewModel @Inject constructor(
         }
 
         list[pos] = model
-        _categoryList.value = HomeScreenState.Success(list.toMutableStateList())
+        _categoryList.value = CategoryListState.Success(list.toMutableStateList())
+        getMealList(model.strCategory)
     }
+
+    private fun getMealList(strCategory: String) = viewModelScope.launch(Dispatchers.IO) {
+
+        val response = repository.getMealList(strCategory)
+
+        if (response.isSuccessful) {
+            response.body()?.let { result ->
+                if (result.meals.isNotEmpty()) {
+
+                    val list = result.meals.toMutableList()
+
+                    _mealList.value = MealListState.Success(list.toMutableStateList())
+                } else {
+
+                    _mealList.value = MealListState.Empty
+                }
+
+            } ?: kotlin.run {
+
+                val error = response.errorBody()?.charStream().toString()
+                _mealList.value = MealListState.Error(error)
+            }
+        }
+        else {
+            val error = response.errorBody()?.charStream().toString()
+            _mealList.value = MealListState.Error(error)
+        }
+    }
+
 }

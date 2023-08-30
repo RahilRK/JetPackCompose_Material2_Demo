@@ -23,3 +23,5 @@ val red = Color(0xFFff225c)
 val yellow = Color(0xFFffaf47)
 
 val meal_color_primary = Color(0xFF009b7c)
+val bg_color = Color(0x20888888)
+val item_bg_color = Color(0x30000000)

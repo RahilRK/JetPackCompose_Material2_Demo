@@ -15,7 +15,8 @@ import javax.inject.Inject
 class MainRepository @Inject constructor(
     private val noteDao: NoteDao,
     private val apiInterface: ApiInterface,
-    ) {
+) {
+    /*todo roomDB*/
     suspend fun saveNews(noteModel: NoteModel): Long {
 
         return noteDao.saveNote(noteModel)
@@ -26,8 +27,10 @@ class MainRepository @Inject constructor(
 
     fun getSearchNotes(keyWord: String): Flow<List<NoteModel>> =
         noteDao.getSearchNotes(keyWord).flowOn(Dispatchers.IO).conflate()
+
     fun getNotesByTag(mTag: String): Flow<List<NoteModel>> =
         noteDao.getNotesByTag(mTag).flowOn(Dispatchers.IO).conflate()
+
     fun getFilteredNotes(keyWord: String, mTag: String): Flow<List<NoteModel>> =
         noteDao.getFilteredNotes(keyWord, mTag).flowOn(Dispatchers.IO).conflate()
 
@@ -49,7 +52,12 @@ class MainRepository @Inject constructor(
         return noteDao.deleteMultipleNotes(value)
     }
 
-    //todo api calls
+    /*todo api calls*/
     suspend fun getCategoryList() = apiInterface.getCategoryList()
+
+    suspend fun getMealList(strCategory: String) = apiInterface.getMealList(strCategory)
+
+    suspend fun getSearchMealList(keyWord: String) = apiInterface.getSearchMealList(keyWord)
+
 
 }

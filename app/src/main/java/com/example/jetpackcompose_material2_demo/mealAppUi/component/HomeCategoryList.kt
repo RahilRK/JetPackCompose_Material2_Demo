@@ -27,13 +27,12 @@ import coil.compose.AsyncImage
 import com.example.jetpackcompose_material2_demo.data.remoteModel.Category
 import com.example.jetpackcompose_material2_demo.ui.theme.meal_color_primary
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 
 @Preview
 @Composable
-fun CategoryList(
+fun HomeCategoryList(
     list: MutableList<Category> = arrayListOf(),
     onClickEvent: (pos: Int, model: Category) -> Unit = { pos: Int, mModel: Category -> },
     mListState: LazyListState = rememberLazyListState()
@@ -41,14 +40,14 @@ fun CategoryList(
     LazyRow(content = {
         itemsIndexed(list) { index, model ->
 
-            CategoryListItem(index, model, onClickEvent = onClickEvent, mListState)
+            HomeCategoryListItem(index, model, onClickEvent = onClickEvent, mListState)
         }
     }, modifier = Modifier, state = mListState)
 }
 
 @Preview
 @Composable
-fun CategoryListItem(
+fun HomeCategoryListItem(
     index: Int = 0,
     model: Category = Category(strCategory = "Chicken", isSelected = false),
     onClickEvent: (pos: Int, model: Category,) -> Unit = { pos: Int, mModel: Category, -> },

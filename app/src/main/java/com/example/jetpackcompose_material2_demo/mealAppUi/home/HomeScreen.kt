@@ -1,5 +1,6 @@
 package com.example.jetpackcompose_material2_demo.mealAppUi.home
 
+import android.content.Context
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
@@ -21,6 +22,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -28,16 +30,21 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.example.jetpackcompose_material2_demo.R
-import com.example.jetpackcompose_material2_demo.mealAppUi.component.CategoryList
+import com.example.jetpackcompose_material2_demo.mealAppUi.component.HomeCategoryList
+import com.example.jetpackcompose_material2_demo.mealAppUi.component.HomeMealList
 import com.example.jetpackcompose_material2_demo.mealAppUi.component.HomeStaticSearch
+import com.example.jetpackcompose_material2_demo.mealAppUi.home.state.CategoryListState
+import com.example.jetpackcompose_material2_demo.mealAppUi.home.state.MealListState
+import com.example.jetpackcompose_material2_demo.ui.theme.bg_color
 import com.example.jetpackcompose_material2_demo.util.Constants.HOME_SCREEN_TAG
+import com.example.jetpackcompose_material2_demo.util.Constants.SEARCH_MEAL_SCREEN_ROUTE
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 
-@Preview
 @Composable
-fun HomeScreen() {
+fun HomeScreen(navController: NavHostController = rememberNavController()) {
 
     val viewModel: HomeScreenViewModel = hiltViewModel()
     val context = LocalContext.current
@@ -45,7 +52,7 @@ fun HomeScreen() {
 
     Column(
         Modifier
-            .background(Color.Gray.copy(alpha = 0.1f))
+            .background(bg_color)
             .fillMaxSize(),
     ) {
         Column(
@@ -53,61 +60,116 @@ fun HomeScreen() {
                 .fillMaxHeight()
                 .padding(12.dp)
         ) {
-            Row() {
-                Column(modifier = Modifier.weight(0.7f)) {
-                    Text(
-                        text = "Hello, Lisa",
-                        fontSize = 16.sp,
-                        color = Color.Gray,
-                        fontWeight = FontWeight.Normal
-                    )
-                    Text(
-                        text = "What would you like to cook today?",
-                        fontSize = 24.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.Black
-                    )
-                }
-                Image(
-                    painterResource(id = R.drawable.ic_lady),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .size(60.dp)
-                        .clip(CircleShape)
-                        .align(Alignment.CenterVertically)
-                        .border(1.dp, Color.White, CircleShape),
+            Header(context, onSearchClick = {
+                navController.navigate(SEARCH_MEAL_SCREEN_ROUTE)
+            })
+
+            LoadCategoryList(viewModel, context)
+
+            LoadMealList(viewModel, context)
+        }
+    }
+}
+
+@Preview(showSystemUi = true)
+@Composable
+fun Header(
+    context: Context = LocalContext.current,
+    onSearchClick: () -> Unit = {}
+) {
+    Column {
+        Row() {
+            Column(modifier = Modifier.weight(0.7f)) {
+                Text(
+                    text = "Hello, Lisa",
+                    fontSize = 16.sp,
+                    color = Color.Gray,
+                    fontWeight = FontWeight.Normal
+                )
+                Text(
+                    text = "What would you like to cook today?",
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.Black
                 )
             }
+            Image(
+                painterResource(id = R.drawable.ic_lady),
+                contentDescription = null,
+                modifier = Modifier
+                    .size(60.dp)
+                    .clip(CircleShape)
+                    .align(Alignment.CenterVertically)
+                    .border(1.dp, Color.White, CircleShape),
+                contentScale = ContentScale.Crop
+            )
+        }
 
-            HomeStaticSearch()
+        HomeStaticSearch(context, onSearchClick)
+    }
+}
 
-            val categoryListState =
-                viewModel.categoryList.collectAsState(initial = HomeScreenState.Loading)
-            when (val result = categoryListState.value) {
-                HomeScreenState.Loading -> {
-                    Log.d(HOME_SCREEN_TAG, "Loading...")
-                }
+@Composable
+fun LoadCategoryList(
+    viewModel: HomeScreenViewModel = hiltViewModel(),
+    context: Context = LocalContext.current
+) {
+    val categoryListState =
+        viewModel.categoryList.collectAsState(initial = CategoryListState.Loading)
+    when (val result = categoryListState.value) {
+        CategoryListState.Loading -> {
+            Log.d(HOME_SCREEN_TAG, "LoadCategoryList Loading...")
+        }
 
-                is HomeScreenState.Success -> {
-                    Log.d(HOME_SCREEN_TAG, "Success:")
+        is CategoryListState.Success -> {
+            Log.d(HOME_SCREEN_TAG, "LoadCategoryList Success:")
 
-                    val listStatee = rememberLazyListState()
+            val listState = rememberLazyListState()
 
-                    CategoryList(result.list, onClickEvent = { pos, model ->
+            HomeCategoryList(result.list, onClickEvent = { pos, model ->
 
-                        viewModel.update(pos, model, result.list)
-                    }, listStatee)
-                }
+                viewModel.selectCategory(pos, model, result.list)
+            }, listState)
+        }
 
-                is HomeScreenState.Empty -> {
-                    Log.d(HOME_SCREEN_TAG, "Empty: ")
-                }
+        is CategoryListState.Empty -> {
+            Log.d(HOME_SCREEN_TAG, "LoadCategoryList Empty: ")
+        }
 
-                is HomeScreenState.Error -> {
-                    Log.e(HOME_SCREEN_TAG, "Error: $result")
-                    Toast.makeText(context, "Unable to load category", Toast.LENGTH_SHORT).show()
-                }
-            }
+        is CategoryListState.Error -> {
+            Log.e(HOME_SCREEN_TAG, "LoadCategoryList Error: $result")
+            Toast.makeText(context, "Unable to load category", Toast.LENGTH_SHORT).show()
+        }
+    }
+}
+
+@Composable
+fun LoadMealList(
+    viewModel: HomeScreenViewModel = hiltViewModel(),
+    context: Context = LocalContext.current
+) {
+
+    val mealListState =
+        viewModel.mealList.collectAsState(initial = MealListState.Loading)
+    when (val result = mealListState.value) {
+        MealListState.Loading -> {
+            Log.d(HOME_SCREEN_TAG, "LoadMealList Loading...")
+        }
+
+        is MealListState.Success -> {
+            Log.d(HOME_SCREEN_TAG, "LoadMealList Success:")
+            HomeMealList(result.list, onClickEvent = { pos, model ->
+
+            })
+        }
+
+        is MealListState.Empty -> {
+            Log.d(HOME_SCREEN_TAG, "LoadMealList Empty: ")
+        }
+
+        is MealListState.Error -> {
+            Log.e(HOME_SCREEN_TAG, "LoadMealList Error: $result")
+            Toast.makeText(context, "Unable to load meal list", Toast.LENGTH_SHORT).show()
         }
     }
 }
