@@ -1,6 +1,7 @@
 package com.example.jetpackcompose_material2_demo.data.remote
 
 import com.example.jetpack_compose_demo.data.model.MealList
+import com.example.jetpackcompose_material2_demo.data.remoteModel.AreaList
 import com.example.jetpackcompose_material2_demo.data.remoteModel.CategoryList
 import com.example.jetpackcompose_material2_demo.data.remoteModel.SearchMealList
 import retrofit2.Response
@@ -21,4 +22,15 @@ interface ApiInterface {
     suspend fun getSearchMealList(
         @Query("s") keyWord: String,
     ): Response<SearchMealList>
+
+    @GET("api/json/v1/1/list.php")
+    suspend fun getAreaList(
+        @Query("a") a: String = "list",
+    ): Response<AreaList>
+
+    @GET("api/json/v1/1/filter.php")
+    suspend fun getAreaWiseMealList(
+        @Query("a") area: String,
+    ): Response<MealList>
+
 }

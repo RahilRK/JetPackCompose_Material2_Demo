@@ -65,8 +65,6 @@ fun HomeScreen(navController: NavHostController = rememberNavController()) {
             })
 
             LoadCategoryList(viewModel, context)
-
-            LoadMealList(viewModel, context)
         }
     }
 }
@@ -130,6 +128,8 @@ fun LoadCategoryList(
 
                 viewModel.selectCategory(pos, model, result.list)
             }, listState)
+
+            LoadMealList(viewModel, context)
         }
 
         is CategoryListState.Empty -> {

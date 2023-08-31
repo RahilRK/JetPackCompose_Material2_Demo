@@ -59,5 +59,7 @@ class MainRepository @Inject constructor(
 
     suspend fun getSearchMealList(keyWord: String) = apiInterface.getSearchMealList(keyWord)
 
+    suspend fun getAreaList() = apiInterface.getAreaList()
 
+    suspend fun getAreaWiseMealList(area: String) = apiInterface.getAreaWiseMealList(area)
 }

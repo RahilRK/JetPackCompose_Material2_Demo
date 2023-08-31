@@ -22,6 +22,6 @@ object Constants {
 
     const val HOME_LABEL = "Home"
     const val SEARCH_MEAL_LABEL = "Search"
-    const val COUNTRY_MEAL_LABEL = "Country Meal"
-    const val INGREDIENTS_MEAL_LABEL = "Ingredients Meal"
+    const val COUNTRY_MEAL_LABEL = "Area"
+    const val INGREDIENTS_MEAL_LABEL = "Ingredients"
 }
