@@ -1,18 +1,25 @@
 package com.example.jetpackcompose_material2_demo.mealAppUi.component
 
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyGridState
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.itemsIndexed
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -27,9 +34,9 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
@@ -38,6 +45,7 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -45,24 +53,21 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.example.jetpackcompose_material2_demo.data.remoteModel.Meal
 import com.example.jetpackcompose_material2_demo.mealAppUi.home.HomeScreenViewModel
+import com.example.jetpackcompose_material2_demo.mealAppUi.ingredients_meal.IngredientScreenViewModel
 import com.example.jetpackcompose_material2_demo.ui.theme.item_bg_color
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 
-@Preview
 @Composable
-fun HomeMealList(
+fun IngredientWiseMealList(
     list: MutableList<Meal> = arrayListOf(),
     onClickEvent: (pos: Int, model: Meal) -> Unit = { pos: Int, mModel: Meal -> },
-    mealLazyListState: LazyListState = rememberLazyListState(),
+    mealLazyListState: LazyGridState = rememberLazyGridState(),
     hideBottomNav: Boolean = false,
     onScrollEvent: (hideBottomNav: Boolean) -> Unit = {},
 ) {
-    val viewModel: HomeScreenViewModel = hiltViewModel()
+    val viewModel: IngredientScreenViewModel = hiltViewModel()
     val isRefreshing by viewModel.isRefreshing.collectAsState()
     val swipeRefreshState = rememberSwipeRefreshState(isRefreshing = isRefreshing)
 
@@ -71,9 +76,6 @@ fun HomeMealList(
             mealLazyListState.firstVisibleItemIndex
         }
     }
-//    Log.d("TAG", "list.size: ${list.size} - mFirstVisibleItemIndex: ${mFirstVisibleItemIndex.value}")
-//    onScrollEvent(list.size - 1 == mFirstVisibleItemIndex.value)
-
 
     val nestedScrollConnection = remember {
         object : NestedScrollConnection {
@@ -85,7 +87,7 @@ fun HomeMealList(
 //                Log.d("TAG", "isScrollDown: $isScrollDown")
 
 //                if(mFirstVisibleItemIndex.value > 0) {
-                    onScrollEvent(isScrollDown)
+                onScrollEvent(isScrollDown)
 //                }
                 return super.onPreScroll(available, source)
             }
@@ -109,118 +111,91 @@ fun HomeMealList(
         viewModel.updateIsRefreshValue(true)
         viewModel.getCategoryList()
     }) {
-        LazyColumn(content = {
+        LazyVerticalGrid(
+            modifier = Modifier.padding(top = 12.dp).nestedScroll(nestedScrollConnection),
+            columns = GridCells.Fixed(2),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            state = mealLazyListState
+        ) {
             itemsIndexed(list) { index, model ->
 
-                HomeMealListItem(
-                    index,
-                    model,
-                    onClickEvent = onClickEvent,
-                    hideBottomNav = hideBottomNav,
-                    onScrollEvent = onScrollEvent
-                )
+                IngredientWiseMealListItem(index, model = model, onClickEvent = onClickEvent)
             }
-        }, modifier = Modifier.nestedScroll(nestedScrollConnection), state = mealLazyListState)
+        }
     }
 }
 
 @Preview
 @Composable
-fun HomeMealListItem(
+fun IngredientWiseMealListItem(
     index: Int = 0,
-    model: Meal = Meal(strMeal = "Chicken"),
+    model: Meal = Meal(strMeal = "Canadian Butter Tarts"),
     onClickEvent: (pos: Int, model: Meal) -> Unit = { pos: Int, mModel: Meal -> },
     hideBottomNav: Boolean = false,
     onScrollEvent: (hideBottomNav: Boolean) -> Unit = {},
 ) {
+
     Card(
         elevation = 8.dp, backgroundColor = Color.White, shape = RoundedCornerShape(8.dp),
-        modifier = Modifier
-            .clickable {
+        modifier = Modifier.clickable {
 
-                onClickEvent(index, model)
+            onClickEvent(index, model)
 
-                val mHideBottomNav = !hideBottomNav
-                onScrollEvent(mHideBottomNav)
-
-            }
-            .padding(top = 12.dp)
+            val mHideBottomNav = !hideBottomNav
+            onScrollEvent(mHideBottomNav)
+        }
     ) {
-        Box(
-            Modifier
-                .fillMaxWidth()
-                .height(240.dp)
-        ) {
-            AsyncImage(
-                model = model.strMealThumb,
-                contentDescription = null,
-                modifier = Modifier.fillMaxSize(),
-                contentScale = ContentScale.Crop,
-            )
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(item_bg_color),
+        Column(Modifier.height(320.dp)) {
+            Box(
+                Modifier
+                    .fillMaxWidth()
+//                    .align(Alignment.TopCenter)
+                    .height(240.dp)
             ) {
+                AsyncImage(
+                    model = model.strMealThumb,
+                    contentDescription = null,
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Crop,
+                )
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(item_bg_color),
+                ) {
 
-            }
+                }
 
-            Image(
-                modifier = Modifier
-                    .align(Alignment.TopStart)
-                    .padding(12.dp),
-                imageVector = Icons.Outlined.FavoriteBorder,
-                contentDescription = null,
-                colorFilter = ColorFilter.tint(Color.White)
-            )
-
-            Row(
-                modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .padding(12.dp)
-            ) {
                 Image(
-                    modifier = Modifier.align(Alignment.CenterVertically),
-                    imageVector = Icons.Outlined.StarOutline,
+                    modifier = Modifier
+                        .align(Alignment.TopStart)
+                        .padding(12.dp),
+                    imageVector = Icons.Outlined.FavoriteBorder,
                     contentDescription = null,
                     colorFilter = ColorFilter.tint(Color.White)
                 )
-                Text(
-                    modifier = Modifier.padding(start = 4.dp),
-                    text = "4.8",
-                    color = Color.White,
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Light
-                )
             }
 
             Column(
                 modifier = Modifier
-                    .align(Alignment.BottomStart)
-                    .padding(12.dp)
+//                    .align(Alignment.BottomStart)
+                    .fillMaxWidth()
+                    .fillMaxHeight()
+                    .background(Color.White)
+                    .padding(12.dp),
+                verticalArrangement = Arrangement.Center
             ) {
                 Text(
                     text = model.strMeal,
-                    color = Color.White,
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.Bold
+                    color = Color.Black,
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    maxLines = 2,
+                    softWrap = true
                 )
-                Row {
-                    Image(
-                        modifier = Modifier.align(Alignment.CenterVertically),
-                        imageVector = Icons.Outlined.WatchLater,
-                        contentDescription = null,
-                        colorFilter = ColorFilter.tint(Color.White)
-                    )
-                    Text(
-                        modifier = Modifier.padding(start = 4.dp),
-                        text = "15 min",
-                        color = Color.White,
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Light
-                    )
-                }
             }
+
         }
     }
 }

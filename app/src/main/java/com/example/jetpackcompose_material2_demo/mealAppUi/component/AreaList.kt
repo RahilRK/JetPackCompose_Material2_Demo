@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.grid.LazyGridState
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -30,14 +32,15 @@ import kotlinx.coroutines.launch
 fun AreaList(
     list: MutableList<Area> = arrayListOf(),
     onClickEvent: (pos: Int, model: Area) -> Unit = { pos: Int, mModel: Area -> },
-    mListState: LazyListState = rememberLazyListState()
+    countryLazyListState: LazyListState = rememberLazyListState(),
+    mealLazyListState: LazyGridState = rememberLazyGridState(),
 ) {
     LazyRow(content = {
         itemsIndexed(list) { index, model ->
 
-            AreaListItem(index, model, onClickEvent = onClickEvent, mListState)
+            AreaListItem(index, model, onClickEvent = onClickEvent, countryLazyListState, mealLazyListState)
         }
-    }, modifier = Modifier, state = mListState)
+    }, modifier = Modifier, state = countryLazyListState)
 
 }
 
@@ -47,7 +50,8 @@ fun AreaListItem(
     index: Int = 0,
     model: Area = Area(strArea = "America", isSelected = true),
     onClickEvent: (pos: Int, model: Area) -> Unit = { pos: Int, mModel: Area -> },
-    mListState: LazyListState = rememberLazyListState()
+    countryLazyListState: LazyListState = rememberLazyListState(),
+    mealLazyListState: LazyGridState = rememberLazyGridState(),
 ) {
     val coroutineScope: CoroutineScope = rememberCoroutineScope()
 
@@ -76,7 +80,8 @@ fun AreaListItem(
                         val getModelData = model.copy(isSelected = true)
                         onClickEvent(index, getModelData)
                         coroutineScope.launch {
-                            mListState.animateScrollToItem(index)
+                            countryLazyListState.animateScrollToItem(index)
+                            mealLazyListState.animateScrollToItem(0)
                         }
                     }
                 }

@@ -9,8 +9,10 @@ import com.example.jetpackcompose_material2_demo.mealAppUi.home.state.MealListSt
 import com.example.jetpackcompose_material2_demo.repository.MainRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -20,6 +22,14 @@ class HomeScreenViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val TAG = "HomeScreenViewModel"
+
+    private val _isRefreshing = MutableStateFlow(false)
+    val isRefreshing: StateFlow<Boolean>
+        get() = _isRefreshing.asStateFlow()
+
+    private val _loadingDialogueState = MutableStateFlow(false)
+    val loadingDialogueState: StateFlow<Boolean>
+        get() = _loadingDialogueState.asStateFlow()
 
     private var _categoryList = MutableStateFlow<CategoryListState>(CategoryListState.Loading)
     val categoryList: StateFlow<CategoryListState>
@@ -33,18 +43,33 @@ class HomeScreenViewModel @Inject constructor(
         getCategoryList()
     }
 
-    private fun getCategoryList() = viewModelScope.launch(Dispatchers.IO) {
+    fun updateIsRefreshValue(newValue: Boolean) {
+        _isRefreshing.value = newValue
+    }
 
+    private fun updateLoadingDialogueState(newValue: Boolean) {
+        _loadingDialogueState.value = newValue
+    }
+
+    fun getCategoryList() = viewModelScope.launch(Dispatchers.IO) {
+
+        if (_isRefreshing.value) {
+            updateLoadingDialogueState(false)
+        }
+        else {
+            updateLoadingDialogueState(true)
+        }
         val response = repository.getCategoryList()
 
         if (response.isSuccessful) {
+//            updateIsRefreshValue(false)
+            updateLoadingDialogueState(false)
             response.body()?.let { result ->
                 if (result.categories.isNotEmpty()) {
 
                     val list = result.categories.toMutableList()
 
                     selectCategory(0, list[0].copy(isSelected = true), list)
-                    getMealList(list[0].strCategory)
                     _categoryList.value = CategoryListState.Success(list.toMutableStateList())
                 } else {
 
@@ -58,6 +83,8 @@ class HomeScreenViewModel @Inject constructor(
             }
         }
         else {
+            updateIsRefreshValue(false)
+            updateLoadingDialogueState(false)
             val error = response.errorBody()?.charStream().toString()
             _categoryList.value = CategoryListState.Error(error)
         }
@@ -72,14 +99,20 @@ class HomeScreenViewModel @Inject constructor(
 
         list[pos] = model
         _categoryList.value = CategoryListState.Success(list.toMutableStateList())
-        getMealList(model.strCategory)
+        getMealList(model.strCategory, _isRefreshing.value)
     }
 
-    private fun getMealList(strCategory: String) = viewModelScope.launch(Dispatchers.IO) {
+    private fun getMealList(strCategory: String, fromIsRefreshing: Boolean = true) = viewModelScope.launch(Dispatchers.IO) {
+
+        if(!fromIsRefreshing) {
+            updateLoadingDialogueState(true)
+        }
 
         val response = repository.getMealList(strCategory)
 
         if (response.isSuccessful) {
+            updateIsRefreshValue(false)
+            updateLoadingDialogueState(false)
             response.body()?.let { result ->
                 if (result.meals.isNotEmpty()) {
 
@@ -98,6 +131,8 @@ class HomeScreenViewModel @Inject constructor(
             }
         }
         else {
+            updateIsRefreshValue(false)
+            updateLoadingDialogueState(false)
             val error = response.errorBody()?.charStream().toString()
             _mealList.value = MealListState.Error(error)
         }

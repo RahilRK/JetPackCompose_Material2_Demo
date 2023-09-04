@@ -12,20 +12,28 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
+import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.example.jetpackcompose_material2_demo.data.remoteModel.Category
+import com.example.jetpackcompose_material2_demo.mealAppUi.home.HomeScreenViewModel
 import com.example.jetpackcompose_material2_demo.ui.theme.meal_color_primary
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -35,14 +43,21 @@ import kotlinx.coroutines.launch
 fun HomeCategoryList(
     list: MutableList<Category> = arrayListOf(),
     onClickEvent: (pos: Int, model: Category) -> Unit = { pos: Int, mModel: Category -> },
-    mListState: LazyListState = rememberLazyListState()
+    categoryLazyListState: LazyListState = rememberLazyListState(),
+    mealLazyListState: LazyListState = rememberLazyListState(),
 ) {
     LazyRow(content = {
         itemsIndexed(list) { index, model ->
 
-            HomeCategoryListItem(index, model, onClickEvent = onClickEvent, mListState)
+            HomeCategoryListItem(
+                index,
+                model,
+                onClickEvent = onClickEvent,
+                categoryLazyListState,
+                mealLazyListState,
+            )
         }
-    }, modifier = Modifier, state = mListState)
+    }, modifier = Modifier, state = categoryLazyListState)
 }
 
 @Preview
@@ -50,8 +65,9 @@ fun HomeCategoryList(
 fun HomeCategoryListItem(
     index: Int = 0,
     model: Category = Category(strCategory = "Chicken", isSelected = false),
-    onClickEvent: (pos: Int, model: Category,) -> Unit = { pos: Int, mModel: Category, -> },
-    mListState: LazyListState = rememberLazyListState()
+    onClickEvent: (pos: Int, model: Category) -> Unit = { pos: Int, mModel: Category -> },
+    categoryLazyListState: LazyListState = rememberLazyListState(),
+    mealLazyListState: LazyListState = rememberLazyListState(),
 ) {
     val coroutineScope: CoroutineScope = rememberCoroutineScope()
     Box(Modifier.padding(end = 8.dp)) {
@@ -67,11 +83,12 @@ fun HomeCategoryListItem(
                 .padding(horizontal = 12.dp, vertical = 8.dp)
                 .clickable {
 
-                    if(!model.isSelected) {
+                    if (!model.isSelected) {
                         val getModelData = model.copy(isSelected = true)
                         onClickEvent(index, getModelData)
                         coroutineScope.launch {
-                            mListState.animateScrollToItem(index)
+                            categoryLazyListState.animateScrollToItem(index)
+                            mealLazyListState.animateScrollToItem(0)
                         }
                     }
                 }

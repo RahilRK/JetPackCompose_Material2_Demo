@@ -6,17 +6,21 @@ import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -36,35 +40,54 @@ import com.example.jetpackcompose_material2_demo.R
 import com.example.jetpackcompose_material2_demo.mealAppUi.component.HomeCategoryList
 import com.example.jetpackcompose_material2_demo.mealAppUi.component.HomeMealList
 import com.example.jetpackcompose_material2_demo.mealAppUi.component.HomeStaticSearch
+import com.example.jetpackcompose_material2_demo.mealAppUi.component.LoadingDialog
 import com.example.jetpackcompose_material2_demo.mealAppUi.home.state.CategoryListState
 import com.example.jetpackcompose_material2_demo.mealAppUi.home.state.MealListState
 import com.example.jetpackcompose_material2_demo.ui.theme.bg_color
 import com.example.jetpackcompose_material2_demo.util.Constants.HOME_SCREEN_TAG
 import com.example.jetpackcompose_material2_demo.util.Constants.SEARCH_MEAL_SCREEN_ROUTE
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 @Composable
-fun HomeScreen(navController: NavHostController = rememberNavController()) {
+fun HomeScreen(
+    navController: NavHostController = rememberNavController(),
+    hideBottomNav: Boolean = false,
+    onScrollEvent: (hideBottomNav: Boolean) -> Unit = {},
+) {
 
     val viewModel: HomeScreenViewModel = hiltViewModel()
     val context = LocalContext.current
     val coroutineScope: CoroutineScope = rememberCoroutineScope()
+
+    val mLoadingDialogueState by viewModel.loadingDialogueState.collectAsState()
 
     Column(
         Modifier
             .background(bg_color)
             .fillMaxSize(),
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxHeight()
-                .padding(12.dp)
-        ) {
-            Header(context, onSearchClick = {
-                navController.navigate(SEARCH_MEAL_SCREEN_ROUTE)
-            })
+        Box {
+            Column(
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .padding(12.dp)
+            ) {
+                Header(context, onSearchClick = {
+                    navController.navigate(SEARCH_MEAL_SCREEN_ROUTE)
+                })
 
-            LoadCategoryList(viewModel, context)
+                LoadCategoryList(
+                    viewModel,
+                    context,
+                    hideBottomNav = hideBottomNav,
+                    onScrollEvent = onScrollEvent
+                )
+            }
+
+            if(mLoadingDialogueState) {
+                LoadingDialog()
+            }
         }
     }
 }
@@ -110,11 +133,14 @@ fun Header(
 @Composable
 fun LoadCategoryList(
     viewModel: HomeScreenViewModel = hiltViewModel(),
-    context: Context = LocalContext.current
+    context: Context = LocalContext.current,
+    hideBottomNav: Boolean = false,
+    onScrollEvent: (hideBottomNav: Boolean) -> Unit = {},
 ) {
-    val categoryListState =
+    val coroutineScope: CoroutineScope = rememberCoroutineScope()
+    val mCategoryListState =
         viewModel.categoryList.collectAsState(initial = CategoryListState.Loading)
-    when (val result = categoryListState.value) {
+    when (val result = mCategoryListState.value) {
         CategoryListState.Loading -> {
             Log.d(HOME_SCREEN_TAG, "LoadCategoryList Loading...")
         }
@@ -122,14 +148,30 @@ fun LoadCategoryList(
         is CategoryListState.Success -> {
             Log.d(HOME_SCREEN_TAG, "LoadCategoryList Success:")
 
-            val listState = rememberLazyListState()
+            val categoryLazyListState = rememberLazyListState()
+            val mealLazyListState = rememberLazyListState()
 
             HomeCategoryList(result.list, onClickEvent = { pos, model ->
 
                 viewModel.selectCategory(pos, model, result.list)
-            }, listState)
+                onScrollEvent(true)
 
-            LoadMealList(viewModel, context)
+            }, categoryLazyListState, mealLazyListState)
+
+            LoadMealList(
+                viewModel,
+                context,
+                mealLazyListState,
+                hideBottomNav = hideBottomNav,
+                onScrollEvent = onScrollEvent
+            )
+            if (viewModel.isRefreshing.collectAsState().value) {
+                LaunchedEffect(Unit) {
+                    coroutineScope.launch {
+                        categoryLazyListState.animateScrollToItem(0)
+                    }
+                }
+            }
         }
 
         is CategoryListState.Empty -> {
@@ -146,12 +188,15 @@ fun LoadCategoryList(
 @Composable
 fun LoadMealList(
     viewModel: HomeScreenViewModel = hiltViewModel(),
-    context: Context = LocalContext.current
+    context: Context = LocalContext.current,
+    mealLazyListState: LazyListState = rememberLazyListState(),
+    hideBottomNav: Boolean = false,
+    onScrollEvent: (hideBottomNav: Boolean) -> Unit = {},
 ) {
 
-    val mealListState =
+    val mMealListState =
         viewModel.mealList.collectAsState(initial = MealListState.Loading)
-    when (val result = mealListState.value) {
+    when (val result = mMealListState.value) {
         MealListState.Loading -> {
             Log.d(HOME_SCREEN_TAG, "LoadMealList Loading...")
         }
@@ -160,7 +205,7 @@ fun LoadMealList(
             Log.d(HOME_SCREEN_TAG, "LoadMealList Success:")
             HomeMealList(result.list, onClickEvent = { pos, model ->
 
-            })
+            }, mealLazyListState, hideBottomNav = hideBottomNav, onScrollEvent = onScrollEvent)
         }
 
         is MealListState.Empty -> {

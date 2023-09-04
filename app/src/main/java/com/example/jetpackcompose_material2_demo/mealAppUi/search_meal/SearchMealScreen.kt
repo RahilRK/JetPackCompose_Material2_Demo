@@ -8,7 +8,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
@@ -23,6 +25,7 @@ import com.example.jetpackcompose_material2_demo.mealAppUi.search_meal.state.Sea
 import com.example.jetpackcompose_material2_demo.ui.theme.bg_color
 import com.example.jetpackcompose_material2_demo.util.Constants
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 @Preview
 @Composable
@@ -72,27 +75,38 @@ fun MealSearchList(
     viewModel: SearchMealScreenViewModel = hiltViewModel(),
     context: Context = LocalContext.current
 ) {
+    val coroutineScope: CoroutineScope = rememberCoroutineScope()
 
     val searchMealListState =
         viewModel.mealList.collectAsState(initial = SearchMealListState.Loading)
     when (val result = searchMealListState.value) {
         SearchMealListState.Loading -> {
-            Log.d(Constants.SEARCH_MEAL_SCREEN_TAG, "LoadMealList Loading...")
+            Log.d(Constants.SEARCH_MEAL_SCREEN_TAG, "MealSearchList Loading...")
         }
 
         is SearchMealListState.Success -> {
-            Log.d(Constants.SEARCH_MEAL_SCREEN_TAG, "LoadMealList Success: ${result.list}")
+            Log.d(Constants.SEARCH_MEAL_SCREEN_TAG, "MealSearchList Success: ${result.list}")
+
+            val searchLazyListState = rememberLazyListState()
+/*
+            LaunchedEffect(key1 = Unit) {
+                coroutineScope.launch{
+                    searchLazyListState.animateScrollToItem(0)
+                }
+            }
+*/
+
             SearchMealList(result.list, onClickEvent = { pos, model ->
 
-            })
+            }, searchLazyListState)
         }
 
         is SearchMealListState.Empty -> {
-            Log.d(Constants.SEARCH_MEAL_SCREEN_TAG, "LoadMealList Empty: ")
+            Log.d(Constants.SEARCH_MEAL_SCREEN_TAG, "MealSearchList Empty: ")
         }
 
         is SearchMealListState.Error -> {
-            Log.e(Constants.SEARCH_MEAL_SCREEN_TAG, "LoadMealList Error: $result")
+            Log.e(Constants.SEARCH_MEAL_SCREEN_TAG, "MealSearchList Error: $result")
             Toast.makeText(context, "Unable to show search meal result", Toast.LENGTH_SHORT).show()
         }
     }

@@ -11,6 +11,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -20,6 +21,10 @@ class SearchMealScreenViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val TAG = "SearchMealScreenViewModel"
+
+    private val _loadingDialogueState = MutableStateFlow(false)
+    val loadingDialogueState: StateFlow<Boolean>
+        get() = _loadingDialogueState.asStateFlow()
 
     private val _searchTextState = mutableStateOf(value = "")
     val searchTextState = _searchTextState
@@ -32,16 +37,22 @@ class SearchMealScreenViewModel @Inject constructor(
         getSearchMealList()
     }
 
+    private fun updateLoadingDialogueState(newValue: Boolean) {
+        _loadingDialogueState.value = newValue
+    }
+
     fun updateSearchTextState(newValue: String) {
         _searchTextState.value = newValue
     }
 
     fun getSearchMealList() = viewModelScope.launch(Dispatchers.IO) {
 
-        delay(700L)
+        delay(1000L)
+        updateLoadingDialogueState(true)
         val response = repository.getSearchMealList(_searchTextState.value)
 
         if (response.isSuccessful) {
+            updateLoadingDialogueState(false)
             response.body()?.let { result ->
                 if (result.meals.isNotEmpty()) {
 
@@ -60,6 +71,7 @@ class SearchMealScreenViewModel @Inject constructor(
             }
         }
         else {
+            updateLoadingDialogueState(false)
             val error = response.errorBody()?.charStream().toString()
             _mealList.value = SearchMealListState.Error(error)
         }

@@ -1,6 +1,9 @@
 package com.example.jetpackcompose_material2_demo.mealAppUi.component
 
 import android.util.Log
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material.Icon
@@ -9,6 +12,8 @@ import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.graphics.Color
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
@@ -34,14 +39,21 @@ fun Navigation() {
         NavigationItem.IngredientsMeal
     )
 
+    val bottomBarState = rememberSaveable { (mutableStateOf(true)) }
+
     Scaffold(
         bottomBar = {
-            BottomNavigation(backgroundColor = MaterialTheme.colors.background) {
+            AnimatedVisibility(
+                visible = bottomBarState.value,
+                enter = slideInVertically(initialOffsetY = { it }),
+                exit = slideOutVertically(targetOffsetY = { it }),
+                content = {
+                    BottomNavigation(backgroundColor = MaterialTheme.colors.background) {
 
-                items.forEach {
-                    BottomNavigationItem(
-                        selected = currentRoute == it.route,
-                        onClick = {
+                        items.forEach {
+                            BottomNavigationItem(
+                                selected = currentRoute == it.route,
+                                onClick = {
 /*
                             if(currentRoute != it.route) {
 
@@ -57,45 +69,53 @@ fun Navigation() {
                                 }
                             }
 */
-                            navController.navigate(it.route) {
-                                navController.graph.startDestinationRoute?.let { route ->
-                                    Log.d(Navigation_TAG, "startDestinationRoute: ${it.route}")
+                                    navController.navigate(it.route) {
+                                        navController.graph.startDestinationRoute?.let { route ->
+                                            Log.d(
+                                                Navigation_TAG,
+                                                "startDestinationRoute: ${it.route}"
+                                            )
 
-                                    /*if ((it.route == HOME_ROUTE) ||
-                                        (it.route == COUNTRY_MEAL_ROUTE) ||
-                                        (it.route == INGREDIENTS_MEAL_ROUTE)
-                                    ) {
-                                        popUpTo(route) {
-                                            saveState = true
+                                            /*if ((it.route == HOME_ROUTE) ||
+                                                (it.route == COUNTRY_MEAL_ROUTE) ||
+                                                (it.route == INGREDIENTS_MEAL_ROUTE)
+                                            ) {
+                                                popUpTo(route) {
+                                                    saveState = true
+                                                }
+                                            }*/
+
+                                            popUpTo(route) {
+                                                saveState = true
+                                            }
                                         }
-                                    }*/
 
-                                    popUpTo(route) {
-                                        saveState = true
+                                        launchSingleTop = true
+                                        restoreState = true
                                     }
-                                }
+                                },
+                                icon = {
+                                    Icon(
+                                        imageVector = it.icons,
+                                        contentDescription = null,
+                                        tint = if (currentRoute == it.route) meal_color_primary else Color.LightGray
+                                    )
+                                },
+                                label = {
+                                    Text(
+                                        text = it.label,
+                                        color = if (currentRoute == it.route) meal_color_primary else Color.LightGray
+                                    )
+                                })
+                        }
+                    }
 
-                                launchSingleTop = true
-                                restoreState = true
-                            }
-                        },
-                        icon = {
-                            Icon(
-                                imageVector = it.icons,
-                                contentDescription = null,
-                                tint = if (currentRoute == it.route) meal_color_primary else Color.LightGray
-                            )
-                        },
-                        label = {
-                            Text(
-                                text = it.label,
-                                color = if (currentRoute == it.route) meal_color_primary else Color.LightGray
-                            )
-                        })
                 }
-            }
+            )
         }
     ) {
-        NavigationController(navController = navController, it)
+        NavigationController(navController = navController, it, hideBottomNav = bottomBarState.value, onScrollEvent = { it ->
+            bottomBarState.value = it
+        })
     }
 }

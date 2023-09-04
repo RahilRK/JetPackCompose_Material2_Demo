@@ -15,7 +15,12 @@ import com.example.jetpackcompose_material2_demo.util.Constants.INGREDIENTS_MEAL
 import com.example.jetpackcompose_material2_demo.util.Constants.SEARCH_MEAL_SCREEN_ROUTE
 
 @Composable
-fun NavigationController(navController: NavHostController, paddingValues: PaddingValues) {
+fun NavigationController(
+    navController: NavHostController,
+    paddingValues: PaddingValues,
+    hideBottomNav: Boolean = false,
+    onScrollEvent: (hideBottomNav: Boolean) -> Unit = {},
+) {
     NavHost(
         navController = navController,
         startDestination = HOME_ROUTE,
@@ -23,7 +28,7 @@ fun NavigationController(navController: NavHostController, paddingValues: Paddin
     ) {
 
         composable(HOME_ROUTE) {
-            HomeScreen(navController)
+            HomeScreen(navController, hideBottomNav = hideBottomNav, onScrollEvent = onScrollEvent)
         }
 
         composable(SEARCH_MEAL_SCREEN_ROUTE) {
@@ -31,11 +36,11 @@ fun NavigationController(navController: NavHostController, paddingValues: Paddin
         }
 
         composable(COUNTRY_MEAL_ROUTE) {
-            CountryMealScreen()
+            CountryMealScreen(navController, hideBottomNav = hideBottomNav, onScrollEvent = onScrollEvent)
         }
 
         composable(INGREDIENTS_MEAL_ROUTE) {
-            IngredientsMealScreen()
+            IngredientsMealScreen(navController, hideBottomNav = hideBottomNav, onScrollEvent = onScrollEvent)
         }
     }
 }
