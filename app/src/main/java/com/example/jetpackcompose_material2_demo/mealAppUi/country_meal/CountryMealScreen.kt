@@ -127,6 +127,7 @@ fun LoadAreaList(
 
         is AreaListState.Empty -> {
             Log.d(Constants.COUNTRY_MEAL_SCREEN_TAG, "LoadCategoryList Empty: ")
+            Toast.makeText(context, "No area found", Toast.LENGTH_SHORT).show()
         }
 
         is AreaListState.Error -> {
@@ -161,6 +162,7 @@ fun LoadAreaWiseMealList(
 
         is MealListState.Empty -> {
             Log.d(Constants.COUNTRY_MEAL_SCREEN_TAG, "LoadAreaWiseMealList Empty: ")
+            Toast.makeText(context, "No country meal found", Toast.LENGTH_SHORT).show()
         }
 
         is MealListState.Error -> {

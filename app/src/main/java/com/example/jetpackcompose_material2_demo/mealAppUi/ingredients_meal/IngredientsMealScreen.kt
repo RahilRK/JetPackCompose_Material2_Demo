@@ -137,6 +137,7 @@ fun LoadIngredientList(
 
         is IngredientListState.Empty -> {
             Log.d(Constants.INGREDIENTS_MEAL_SCREEN_TAG, "LoadCategoryList Empty: ")
+            Toast.makeText(context, "No ingredient found", Toast.LENGTH_SHORT).show()
         }
 
         is IngredientListState.Error -> {
@@ -172,6 +173,7 @@ fun LoadIngredientWiseMealList(
 
         is MealListState.Empty -> {
             Log.d(Constants.INGREDIENTS_MEAL_SCREEN_TAG, "LoadIngredientWiseMealList Empty: ")
+            Toast.makeText(context, "No meal found", Toast.LENGTH_SHORT).show()
         }
 
         is MealListState.Error -> {

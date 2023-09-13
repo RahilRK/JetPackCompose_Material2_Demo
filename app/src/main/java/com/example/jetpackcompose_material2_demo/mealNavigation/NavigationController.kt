@@ -1,10 +1,13 @@
 package com.example.jetpackcompose_material2_demo.mealNavigation
 
+import android.util.Log
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
 import com.example.jetpackcompose_material2_demo.mealAppUi.meal_detail.MealDetailScreen
 import com.example.jetpackcompose_material2_demo.mealAppUi.country_meal.CountryMealScreen
 import com.example.jetpackcompose_material2_demo.mealAppUi.home.HomeScreen
@@ -23,6 +26,7 @@ fun NavigationController(
     hideBottomNav: Boolean = false,
     onScrollEvent: (hideBottomNav: Boolean) -> Unit = {},
 ) {
+    val TAG = "NavigationController"
     NavHost(
         navController = navController,
         startDestination = HOME_ROUTE,
@@ -31,8 +35,8 @@ fun NavigationController(
         composable(HOME_ROUTE) {
             HomeScreen(onSearchClick = {
                 navController.navigate(SEARCH_MEAL_SCREEN_ROUTE)
-            }, onMealListItemClick = {
-                navController.navigate(MEAL_DETAIL_ROUTE)
+            }, onListItemClick = { model ->
+                navController.navigate("$MEAL_DETAIL_ROUTE/${model.idMeal}")
             }, hideBottomNav = hideBottomNav, onScrollEvent = onScrollEvent)
         }
 
@@ -56,7 +60,13 @@ fun NavigationController(
             )
         }
 
-        composable(MEAL_DETAIL_ROUTE) {
+        composable("$MEAL_DETAIL_ROUTE/{id}", arguments = listOf(
+            navArgument("id") {
+                type = NavType.StringType
+            }
+        )) { backStackEntry ->
+            val id = backStackEntry.arguments!!.getString("id")
+            Log.d(TAG, "MealDetailScreen id: $id")
             MealDetailScreen(onBackPress = {
                 navController.popBackStack()
             })

@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.jetpackcompose_material2_demo.data.remoteModel.Category
 import com.example.jetpackcompose_material2_demo.mealAppUi.home.state.CategoryListState
 import com.example.jetpackcompose_material2_demo.mealAppUi.home.state.MealListState
+import com.example.jetpackcompose_material2_demo.mealAppUi.search_meal.state.SearchMealListState
 import com.example.jetpackcompose_material2_demo.repository.MainRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -55,8 +56,7 @@ class HomeScreenViewModel @Inject constructor(
 
         if (_isRefreshing.value) {
             updateLoadingDialogueState(false)
-        }
-        else {
+        } else {
             updateLoadingDialogueState(true)
         }
         val response = repository.getCategoryList()
@@ -81,8 +81,7 @@ class HomeScreenViewModel @Inject constructor(
                 val error = response.errorBody()?.charStream().toString()
                 _categoryList.value = CategoryListState.Error(error)
             }
-        }
-        else {
+        } else {
             updateIsRefreshValue(false)
             updateLoadingDialogueState(false)
             val error = response.errorBody()?.charStream().toString()
@@ -102,40 +101,47 @@ class HomeScreenViewModel @Inject constructor(
         getMealList(model.strCategory, _isRefreshing.value)
     }
 
-    private fun getMealList(strCategory: String, fromIsRefreshing: Boolean = true) = viewModelScope.launch(Dispatchers.IO) {
+    private fun getMealList(strCategory: String, fromIsRefreshing: Boolean = true) =
+        viewModelScope.launch(Dispatchers.IO) {
 
-        if(!fromIsRefreshing) {
-            updateLoadingDialogueState(true)
-        }
+            if (!fromIsRefreshing) {
+                updateLoadingDialogueState(true)
+            }
 
-        val response = repository.getMealList(strCategory)
+            val response = repository.getMealList(strCategory)
 
-        if (response.isSuccessful) {
-            updateIsRefreshValue(false)
-            updateLoadingDialogueState(false)
-            response.body()?.let { result ->
-                if (result.meals.isNotEmpty()) {
+            if (response.isSuccessful) {
+                updateIsRefreshValue(false)
+                updateLoadingDialogueState(false)
+                response.body()?.let { result ->
 
-                    val list = result.meals.toMutableList()
+                    result.meals?.let { mealList ->
 
-                    _mealList.value = MealListState.Success(list.toMutableStateList())
-                } else {
+                        if (mealList.isNotEmpty()) {
 
-                    _mealList.value = MealListState.Empty
+                            val list = mealList.toMutableList()
+
+                            _mealList.value = MealListState.Success(list.toMutableStateList())
+                        } else {
+
+                            _mealList.value = MealListState.Empty
+                        }
+                    } ?: kotlin.run {
+                        _mealList.value = MealListState.Empty
+                    }
+
+
+                } ?: kotlin.run {
+
+                    val error = response.errorBody()?.charStream().toString()
+                    _mealList.value = MealListState.Error(error)
                 }
-
-            } ?: kotlin.run {
-
+            } else {
+                updateIsRefreshValue(false)
+                updateLoadingDialogueState(false)
                 val error = response.errorBody()?.charStream().toString()
                 _mealList.value = MealListState.Error(error)
             }
         }
-        else {
-            updateIsRefreshValue(false)
-            updateLoadingDialogueState(false)
-            val error = response.errorBody()?.charStream().toString()
-            _mealList.value = MealListState.Error(error)
-        }
-    }
 
 }

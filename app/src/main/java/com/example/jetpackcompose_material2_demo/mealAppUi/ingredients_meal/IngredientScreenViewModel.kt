@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.jetpackcompose_material2_demo.data.remoteModel.Ingredient
 import com.example.jetpackcompose_material2_demo.mealAppUi.home.state.MealListState
 import com.example.jetpackcompose_material2_demo.mealAppUi.ingredients_meal.state.IngredientListState
+import com.example.jetpackcompose_material2_demo.mealAppUi.search_meal.state.SearchMealListState
 import com.example.jetpackcompose_material2_demo.repository.MainRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -49,12 +50,12 @@ class IngredientScreenViewModel @Inject constructor(
     private fun updateLoadingDialogueState(newValue: Boolean) {
         _loadingDialogueState.value = newValue
     }
+
     fun getCategoryList() = viewModelScope.launch(Dispatchers.IO) {
 
         if (_isRefreshing.value) {
             updateLoadingDialogueState(false)
-        }
-        else {
+        } else {
             updateLoadingDialogueState(true)
         }
         val response = repository.getIngredientList()
@@ -98,39 +99,47 @@ class IngredientScreenViewModel @Inject constructor(
         getIngredientWiseMealList(model.strIngredient, _isRefreshing.value)
     }
 
-    private fun getIngredientWiseMealList(i: String, fromIsRefreshing: Boolean = true) = viewModelScope.launch(Dispatchers.IO) {
+    private fun getIngredientWiseMealList(i: String, fromIsRefreshing: Boolean = true) =
+        viewModelScope.launch(Dispatchers.IO) {
 
-        if(!fromIsRefreshing) {
-            updateLoadingDialogueState(true)
-        }
+            if (!fromIsRefreshing) {
+                updateLoadingDialogueState(true)
+            }
 
-        val response = repository.getIngredientWiseMealList(i)
+            val response = repository.getIngredientWiseMealList(i)
 
-        if (response.isSuccessful) {
-            updateIsRefreshValue(false)
-            updateLoadingDialogueState(false)
-            response.body()?.let { result ->
-                if (result.meals.isNotEmpty()) {
+            if (response.isSuccessful) {
+                updateIsRefreshValue(false)
+                updateLoadingDialogueState(false)
+                response.body()?.let { result ->
+                    result.meals?.let { mealList ->
 
-                    val list = result.meals.toMutableList()
+                        if (mealList.isNotEmpty()) {
 
-                    _ingredientWiseMealList.value = MealListState.Success(list.toMutableStateList())
-                } else {
+                            val list = mealList.toMutableList()
 
-                    _ingredientWiseMealList.value = MealListState.Empty
+                            _ingredientWiseMealList.value =
+                                MealListState.Success(list.toMutableStateList())
+                        } else {
+
+                            _ingredientWiseMealList.value = MealListState.Empty
+                        }
+                    } ?: kotlin.run {
+                        _ingredientWiseMealList.value = MealListState.Empty
+                    }
+
+
+                } ?: kotlin.run {
+
+                    val error = response.errorBody()?.charStream().toString()
+                    _ingredientWiseMealList.value = MealListState.Error(error)
                 }
-
-            } ?: kotlin.run {
-
+            } else {
+                updateIsRefreshValue(false)
+                updateLoadingDialogueState(false)
                 val error = response.errorBody()?.charStream().toString()
                 _ingredientWiseMealList.value = MealListState.Error(error)
             }
-        } else {
-            updateIsRefreshValue(false)
-            updateLoadingDialogueState(false)
-            val error = response.errorBody()?.charStream().toString()
-            _ingredientWiseMealList.value = MealListState.Error(error)
         }
-    }
 
 }

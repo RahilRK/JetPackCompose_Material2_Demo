@@ -3,6 +3,7 @@ package com.example.jetpackcompose_material2_demo.mealAppUi.component
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -17,6 +18,7 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
+import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.FavoriteBorder
@@ -42,6 +44,7 @@ import com.example.jetpackcompose_material2_demo.mealAppUi.home.HomeScreenViewMo
 import com.example.jetpackcompose_material2_demo.mealAppUi.home.LoadCategoryList
 import com.example.jetpackcompose_material2_demo.mealAppUi.search_meal.SearchMealScreenViewModel
 import com.example.jetpackcompose_material2_demo.ui.theme.item_bg_color
+import com.example.jetpackcompose_material2_demo.ui.theme.meal_color_primary
 import com.example.jetpackcompose_material2_demo.util.Constants
 
 
@@ -54,6 +57,7 @@ fun SearchMealList(
 ) {
     val viewModel: SearchMealScreenViewModel = hiltViewModel()
     val mLoadingDialogueState by viewModel.loadingDialogueState.collectAsState()
+
     Box {
         Column(
             modifier = Modifier
@@ -68,9 +72,22 @@ fun SearchMealList(
             }, modifier = Modifier, state = searchLazyListState)
         }
 
+/*
         if(mLoadingDialogueState) {
-            LoadingDialog()
+            Row(
+                modifier = Modifier.fillMaxWidth().align(Alignment.TopCenter),
+                horizontalArrangement = Arrangement.Center
+            ) {
+                CircularProgressIndicator(
+                    modifier = Modifier
+                        .padding(top = 8.dp),
+                    backgroundColor = Color.White,
+                    color = meal_color_primary,
+                    strokeWidth = 6.dp
+                )
+            }
         }
+*/
     }
 }
 

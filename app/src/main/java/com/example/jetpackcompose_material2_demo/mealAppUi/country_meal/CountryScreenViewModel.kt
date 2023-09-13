@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.jetpackcompose_material2_demo.data.remoteModel.Area
 import com.example.jetpackcompose_material2_demo.mealAppUi.country_meal.state.AreaListState
 import com.example.jetpackcompose_material2_demo.mealAppUi.home.state.MealListState
+import com.example.jetpackcompose_material2_demo.mealAppUi.search_meal.state.SearchMealListState
 import com.example.jetpackcompose_material2_demo.repository.MainRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -54,8 +55,7 @@ class CountryScreenViewModel @Inject constructor(
 
         if (_isRefreshing.value) {
             updateLoadingDialogueState(false)
-        }
-        else {
+        } else {
             updateLoadingDialogueState(true)
         }
         val response = repository.getAreaList()
@@ -99,39 +99,48 @@ class CountryScreenViewModel @Inject constructor(
         getAreaWiseMealList(model.strArea, _isRefreshing.value)
     }
 
-    private fun getAreaWiseMealList(area: String, fromIsRefreshing: Boolean = true) = viewModelScope.launch(Dispatchers.IO) {
+    private fun getAreaWiseMealList(area: String, fromIsRefreshing: Boolean = true) =
+        viewModelScope.launch(Dispatchers.IO) {
 
-        if(!fromIsRefreshing) {
-            updateLoadingDialogueState(true)
-        }
+            if (!fromIsRefreshing) {
+                updateLoadingDialogueState(true)
+            }
 
-        val response = repository.getAreaWiseMealList(area)
+            val response = repository.getAreaWiseMealList(area)
 
-        if (response.isSuccessful) {
-            updateIsRefreshValue(false)
-            updateLoadingDialogueState(false)
-            response.body()?.let { result ->
-                if (result.meals.isNotEmpty()) {
+            if (response.isSuccessful) {
+                updateIsRefreshValue(false)
+                updateLoadingDialogueState(false)
+                response.body()?.let { result ->
 
-                    val list = result.meals.toMutableList()
+                    result.meals?.let { mealList ->
 
-                    _areaWiseMealList.value = MealListState.Success(list.toMutableStateList())
-                } else {
+                        if (mealList.isNotEmpty()) {
 
-                    _areaWiseMealList.value = MealListState.Empty
+                            val list = mealList.toMutableList()
+
+                            _areaWiseMealList.value =
+                                MealListState.Success(list.toMutableStateList())
+                        } else {
+
+                            _areaWiseMealList.value = MealListState.Empty
+                        }
+                    } ?: kotlin.run {
+                        _areaWiseMealList.value = MealListState.Empty
+                    }
+
+
+                } ?: kotlin.run {
+
+                    val error = response.errorBody()?.charStream().toString()
+                    _areaWiseMealList.value = MealListState.Error(error)
                 }
-
-            } ?: kotlin.run {
-
+            } else {
+                updateIsRefreshValue(false)
+                updateLoadingDialogueState(false)
                 val error = response.errorBody()?.charStream().toString()
                 _areaWiseMealList.value = MealListState.Error(error)
             }
-        } else {
-            updateIsRefreshValue(false)
-            updateLoadingDialogueState(false)
-            val error = response.errorBody()?.charStream().toString()
-            _areaWiseMealList.value = MealListState.Error(error)
         }
-    }
 
 }

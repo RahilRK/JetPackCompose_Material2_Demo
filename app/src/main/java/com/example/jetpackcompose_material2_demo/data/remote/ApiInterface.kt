@@ -4,6 +4,7 @@ import com.example.jetpack_compose_demo.data.model.MealList
 import com.example.jetpackcompose_material2_demo.data.remoteModel.AreaList
 import com.example.jetpackcompose_material2_demo.data.remoteModel.CategoryList
 import com.example.jetpackcompose_material2_demo.data.remoteModel.IngredientList
+import com.example.jetpackcompose_material2_demo.data.remoteModel.MealDetail
 import com.example.jetpackcompose_material2_demo.data.remoteModel.SearchMealList
 import retrofit2.Response
 import retrofit2.http.GET
@@ -43,4 +44,9 @@ interface ApiInterface {
     suspend fun getIngredientWiseMealList(
         @Query("i") i: String = "i",
     ): Response<MealList>
+
+    @GET("api/json/v1/1/lookup.php")
+    suspend fun getMealDetail(
+        @Query("i") id: String = "i",
+    ): Response<MealDetail>
 }

@@ -54,13 +54,19 @@ class SearchMealScreenViewModel @Inject constructor(
         if (response.isSuccessful) {
             updateLoadingDialogueState(false)
             response.body()?.let { result ->
-                if (result.meals.isNotEmpty()) {
 
-                    val list = result.meals.toMutableList()
+                result.meals?.let { mealList ->
 
-                    _mealList.value = SearchMealListState.Success(list.toMutableStateList())
-                } else {
+                    if (mealList.isNotEmpty()) {
 
+                        val list = mealList.toMutableList()
+                        _mealList.value = SearchMealListState.Success(list.toMutableStateList())
+
+                    } else {
+
+                        _mealList.value = SearchMealListState.Empty
+                    }
+                } ?: kotlin.run {
                     _mealList.value = SearchMealListState.Empty
                 }
 
@@ -69,8 +75,7 @@ class SearchMealScreenViewModel @Inject constructor(
                 val error = response.errorBody()?.charStream().toString()
                 _mealList.value = SearchMealListState.Error(error)
             }
-        }
-        else {
+        } else {
             updateLoadingDialogueState(false)
             val error = response.errorBody()?.charStream().toString()
             _mealList.value = SearchMealListState.Error(error)

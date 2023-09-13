@@ -63,5 +63,6 @@ class MainRepository @Inject constructor(
     suspend fun getIngredientList() = apiInterface.getIngredientList()
 
     suspend fun getIngredientWiseMealList(i: String) = apiInterface.getIngredientWiseMealList(i)
+    suspend fun getMealDetail(id: String) = apiInterface.getMealDetail(id)
 
 }
