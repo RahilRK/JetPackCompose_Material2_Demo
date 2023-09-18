@@ -3,7 +3,6 @@ package com.example.jetpackcompose_material2_demo.mealAppUi.component
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -18,7 +17,6 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
-import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.FavoriteBorder
@@ -39,13 +37,8 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.example.jetpackcompose_material2_demo.data.remoteModel.SearchMeal
-import com.example.jetpackcompose_material2_demo.mealAppUi.home.Header
-import com.example.jetpackcompose_material2_demo.mealAppUi.home.HomeScreenViewModel
-import com.example.jetpackcompose_material2_demo.mealAppUi.home.LoadCategoryList
 import com.example.jetpackcompose_material2_demo.mealAppUi.search_meal.SearchMealScreenViewModel
 import com.example.jetpackcompose_material2_demo.ui.theme.item_bg_color
-import com.example.jetpackcompose_material2_demo.ui.theme.meal_color_primary
-import com.example.jetpackcompose_material2_demo.util.Constants
 
 
 @Preview

@@ -24,7 +24,7 @@ fun NavigationController(
     navController: NavHostController,
     paddingValues: PaddingValues,
     hideBottomNav: Boolean = false,
-    onScrollEvent: (hideBottomNav: Boolean) -> Unit = {},
+    hideBottomNavEvent: (hideBottomNav: Boolean) -> Unit = {},
 ) {
     val TAG = "NavigationController"
     NavHost(
@@ -37,26 +37,32 @@ fun NavigationController(
                 navController.navigate(SEARCH_MEAL_SCREEN_ROUTE)
             }, onListItemClick = { model ->
                 navController.navigate("$MEAL_DETAIL_ROUTE/${model.idMeal}")
-            }, hideBottomNav = hideBottomNav, onScrollEvent = onScrollEvent)
+            }, hideBottomNav = hideBottomNav, hideBottomNavEvent = hideBottomNavEvent)
         }
 
         composable(SEARCH_MEAL_SCREEN_ROUTE) {
-            SearchMealScreen()
+            SearchMealScreen(onListItemClick = { model ->
+                navController.navigate("$MEAL_DETAIL_ROUTE/${model.idMeal}")
+            })
         }
 
         composable(COUNTRY_MEAL_ROUTE) {
             CountryMealScreen(
-                navController,
+                onListItemClick = { model ->
+                    navController.navigate("$MEAL_DETAIL_ROUTE/${model.idMeal}")
+                },
                 hideBottomNav = hideBottomNav,
-                onScrollEvent = onScrollEvent
+                onScrollEvent = hideBottomNavEvent
             )
         }
 
         composable(INGREDIENTS_MEAL_ROUTE) {
             IngredientsMealScreen(
-                navController,
+                onListItemClick = { model ->
+                    navController.navigate("$MEAL_DETAIL_ROUTE/${model.idMeal}")
+                },
                 hideBottomNav = hideBottomNav,
-                onScrollEvent = onScrollEvent
+                onScrollEvent = hideBottomNavEvent
             )
         }
 

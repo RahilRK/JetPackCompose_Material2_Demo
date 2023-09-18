@@ -22,7 +22,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.jetpackcompose_material2_demo.data.remoteModel.Area
-import com.example.jetpackcompose_material2_demo.data.remoteModel.Category
 import com.example.jetpackcompose_material2_demo.ui.theme.meal_color_primary
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch

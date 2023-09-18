@@ -1,11 +1,8 @@
 package com.example.jetpackcompose_material2_demo.mealAppUi.component
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
@@ -20,13 +17,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
@@ -45,18 +38,18 @@ fun SearchView(
     onCloseClick: () -> Unit = {},
     onSearchClick: (String) -> Unit = {},
 ) {
-    val focusRequester = FocusRequester()
+//    val focusRequester = FocusRequester()
     val viewModel: SearchMealScreenViewModel = hiltViewModel()
     val mLoadingDialogueState by viewModel.loadingDialogueState.collectAsState()
 
-    LaunchedEffect(Unit) {
-        focusRequester.requestFocus()
-    }
+//    LaunchedEffect(Unit) {
+//        focusRequester.requestFocus()
+//    }
 
     TextField(
         modifier = Modifier
-            .fillMaxWidth()
-            .focusRequester(focusRequester),
+            .fillMaxWidth(),
+//            .focusRequester(focusRequester),
         value = text,
         onValueChange = { onTextChange(it) },
         placeholder = {

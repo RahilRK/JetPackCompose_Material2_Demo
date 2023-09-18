@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -25,15 +24,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
+import com.example.jetpackcompose_material2_demo.data.remoteModel.Meal
 import com.example.jetpackcompose_material2_demo.mealAppUi.component.IngredientList
 import com.example.jetpackcompose_material2_demo.mealAppUi.component.IngredientWiseMealList
 import com.example.jetpackcompose_material2_demo.mealAppUi.component.LoadingDialog
 import com.example.jetpackcompose_material2_demo.mealAppUi.component.TopBar
-import com.example.jetpackcompose_material2_demo.mealAppUi.home.Header
-import com.example.jetpackcompose_material2_demo.mealAppUi.home.HomeScreenViewModel
-import com.example.jetpackcompose_material2_demo.mealAppUi.home.LoadCategoryList
 import com.example.jetpackcompose_material2_demo.mealAppUi.home.state.MealListState
 import com.example.jetpackcompose_material2_demo.mealAppUi.ingredients_meal.state.IngredientListState
 import com.example.jetpackcompose_material2_demo.ui.theme.bg_color
@@ -43,7 +38,7 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun IngredientsMealScreen(
-    navController: NavHostController = rememberNavController(),
+    onListItemClick: (model: Meal) -> Unit = {},
     hideBottomNav: Boolean = false,
     onScrollEvent: (hideBottomNav: Boolean) -> Unit = {},
 ) {
@@ -75,6 +70,7 @@ fun IngredientsMealScreen(
                             .padding(12.dp)
                     ) {
                         LoadIngredientList(
+                            onListItemClick = onListItemClick,
                             viewModel,
                             context,
                             hideBottomNav = hideBottomNav,
@@ -93,6 +89,7 @@ fun IngredientsMealScreen(
 
 @Composable
 fun LoadIngredientList(
+    onListItemClick: (model: Meal) -> Unit = {},
     viewModel: IngredientScreenViewModel = hiltViewModel(),
     context: Context = LocalContext.current,
     hideBottomNav: Boolean = false,
@@ -122,6 +119,7 @@ fun LoadIngredientList(
             )
 
             LoadIngredientWiseMealList(
+                onListItemClick = onListItemClick,
                 mealLazyListState = mealLazyListState, hideBottomNav = hideBottomNav,
                 onScrollEvent = onScrollEvent
             )
@@ -149,6 +147,7 @@ fun LoadIngredientList(
 
 @Composable
 fun LoadIngredientWiseMealList(
+    onListItemClick: (model: Meal) -> Unit = {},
     viewModel: IngredientScreenViewModel = hiltViewModel(),
     context: Context = LocalContext.current,
     mealLazyListState: LazyGridState = rememberLazyGridState(),
@@ -167,7 +166,9 @@ fun LoadIngredientWiseMealList(
             Log.d(Constants.INGREDIENTS_MEAL_SCREEN_TAG, "LoadIngredientWiseMealList Success:")
 
             IngredientWiseMealList(result.list, onClickEvent = { pos, model ->
-                Toast.makeText(context, model.strMeal, Toast.LENGTH_SHORT).show()
+
+                onListItemClick(model)
+
             }, mealLazyListState, hideBottomNav = hideBottomNav, onScrollEvent = onScrollEvent)
         }
 

@@ -27,4 +27,6 @@ object Constants {
     const val COUNTRY_MEAL_LABEL = "Area"
     const val INGREDIENTS_MEAL_LABEL = "Ingredients"
     const val MEAL_DETAIL_LABEL = "Recipe"
+
+    var currentScreen = "home"
 }

@@ -59,12 +59,6 @@ fun AreaWiseMealList(
     val isRefreshing by viewModel.isRefreshing.collectAsState()
     val swipeRefreshState = rememberSwipeRefreshState(isRefreshing = isRefreshing)
 
-    val mFirstVisibleItemIndex = remember {
-        derivedStateOf {
-            mealLazyListState.firstVisibleItemIndex
-        }
-    }
-
     val nestedScrollConnection = remember {
         object : NestedScrollConnection {
 

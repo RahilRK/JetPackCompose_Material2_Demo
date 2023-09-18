@@ -52,7 +52,7 @@ fun HomeScreen(
     onSearchClick: () -> Unit = {},
     onListItemClick: (model: Meal) -> Unit = {},
     hideBottomNav: Boolean = false,
-    onScrollEvent: (hideBottomNav: Boolean) -> Unit = {},
+    hideBottomNavEvent: (hideBottomNav: Boolean) -> Unit = {},
 ) {
 
     val viewModel: HomeScreenViewModel = hiltViewModel()
@@ -81,7 +81,7 @@ fun HomeScreen(
                     viewModel,
                     context,
                     hideBottomNav = hideBottomNav,
-                    onScrollEvent = onScrollEvent
+                    hideBottomNavEvent = hideBottomNavEvent
                 )
             }
 
@@ -136,7 +136,7 @@ fun LoadCategoryList(
     viewModel: HomeScreenViewModel = hiltViewModel(),
     context: Context = LocalContext.current,
     hideBottomNav: Boolean = false,
-    onScrollEvent: (hideBottomNav: Boolean) -> Unit = {},
+    hideBottomNavEvent: (hideBottomNav: Boolean) -> Unit = {},
 ) {
     val coroutineScope: CoroutineScope = rememberCoroutineScope()
     val mCategoryListState =
@@ -155,7 +155,7 @@ fun LoadCategoryList(
             HomeCategoryList(result.list, onClickEvent = { pos, model ->
 
                 viewModel.selectCategory(pos, model, result.list)
-                onScrollEvent(true)
+                hideBottomNavEvent(true)
 
             }, categoryLazyListState, mealLazyListState)
 
@@ -165,7 +165,7 @@ fun LoadCategoryList(
                 context,
                 mealLazyListState,
                 hideBottomNav = hideBottomNav,
-                onScrollEvent = onScrollEvent
+                hideBottomNavEvent = hideBottomNavEvent
             )
             if (viewModel.isRefreshing.collectAsState().value) {
                 LaunchedEffect(Unit) {
@@ -195,7 +195,7 @@ fun LoadMealList(
     context: Context = LocalContext.current,
     mealLazyListState: LazyListState = rememberLazyListState(),
     hideBottomNav: Boolean = false,
-    onScrollEvent: (hideBottomNav: Boolean) -> Unit = {},
+    hideBottomNavEvent: (hideBottomNav: Boolean) -> Unit = {},
 ) {
 
     val mMealListState =
@@ -211,7 +211,7 @@ fun LoadMealList(
 
                 onListItemClick(model)
 
-            }, mealLazyListState, hideBottomNav = hideBottomNav, onScrollEvent = onScrollEvent)
+            }, mealLazyListState, hideBottomNav = hideBottomNav, hideBottomNavEvent = hideBottomNavEvent)
         }
 
         is MealListState.Empty -> {

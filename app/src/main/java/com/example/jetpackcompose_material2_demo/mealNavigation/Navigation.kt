@@ -1,4 +1,4 @@
-package com.example.jetpackcompose_material2_demo.mealAppUi.component
+package com.example.jetpackcompose_material2_demo.mealNavigation
 
 import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
@@ -17,12 +17,10 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.graphics.Color
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.example.jetpackcompose_material2_demo.mealNavigation.NavigationController
 import com.example.jetpackcompose_material2_demo.ui.theme.meal_color_primary
-import com.example.jetpackcompose_material2_demo.util.Constants.COUNTRY_MEAL_ROUTE
 import com.example.jetpackcompose_material2_demo.util.Constants.HOME_ROUTE
-import com.example.jetpackcompose_material2_demo.util.Constants.INGREDIENTS_MEAL_ROUTE
 import com.example.jetpackcompose_material2_demo.util.Constants.Navigation_TAG
+import com.example.jetpackcompose_material2_demo.util.Constants.currentScreen
 import com.example.jetpackcompose_material2_demo.util.NavigationItem
 
 @Composable
@@ -40,6 +38,17 @@ fun Navigation() {
     )
 
     val bottomBarState = rememberSaveable { (mutableStateOf(true)) }
+
+    navController.addOnDestinationChangedListener { navController, destination, bundle ->
+        destination.route?.let {
+            Log.d(
+                Navigation_TAG,
+                "addOnDestinationChangedListener: ${it}"
+            )
+            bottomBarState.value = !it.contains("meal_detail")
+            currentScreen = it
+        }
+    }
 
     Scaffold(
         bottomBar = {
@@ -76,17 +85,15 @@ fun Navigation() {
                                                 "startDestinationRoute: ${it.route}"
                                             )
 
-                                            /*if ((it.route == HOME_ROUTE) ||
-                                                (it.route == COUNTRY_MEAL_ROUTE) ||
-                                                (it.route == INGREDIENTS_MEAL_ROUTE)
-                                            ) {
+                                            if(currentScreen != "search_meal") {
                                                 popUpTo(route) {
                                                     saveState = true
                                                 }
-                                            }*/
-
-                                            popUpTo(route) {
-                                                saveState = true
+                                            }
+                                            else {
+                                                popUpTo(route) {
+                                                    saveState = false
+                                                }
                                             }
                                         }
 
@@ -114,8 +121,13 @@ fun Navigation() {
             )
         }
     ) {
-        NavigationController(navController = navController, it, hideBottomNav = bottomBarState.value, onScrollEvent = { it ->
-            bottomBarState.value = it
-        })
+        NavigationController(
+            navController = navController,
+            it,
+            hideBottomNav = bottomBarState.value,
+            hideBottomNavEvent = {
+                bottomBarState.value = it
+                Log.d(Navigation_TAG, "Navigation: $it")
+            })
     }
 }

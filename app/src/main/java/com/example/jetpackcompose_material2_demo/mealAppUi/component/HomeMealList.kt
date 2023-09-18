@@ -24,10 +24,8 @@ import androidx.compose.material.icons.outlined.StarOutline
 import androidx.compose.material.icons.outlined.WatchLater
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -46,11 +44,9 @@ import coil.compose.AsyncImage
 import com.example.jetpackcompose_material2_demo.data.remoteModel.Meal
 import com.example.jetpackcompose_material2_demo.mealAppUi.home.HomeScreenViewModel
 import com.example.jetpackcompose_material2_demo.ui.theme.item_bg_color
+import com.example.jetpackcompose_material2_demo.util.Constants.HOME_SCREEN_TAG
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 
 @Preview
@@ -60,19 +56,19 @@ fun HomeMealList(
     onClickEvent: (pos: Int, model: Meal) -> Unit = { pos: Int, mModel: Meal -> },
     mealLazyListState: LazyListState = rememberLazyListState(),
     hideBottomNav: Boolean = false,
-    onScrollEvent: (hideBottomNav: Boolean) -> Unit = {},
+    hideBottomNavEvent: (hideBottomNav: Boolean) -> Unit = {},
 ) {
     val viewModel: HomeScreenViewModel = hiltViewModel()
     val isRefreshing by viewModel.isRefreshing.collectAsState()
     val swipeRefreshState = rememberSwipeRefreshState(isRefreshing = isRefreshing)
 
-    val mFirstVisibleItemIndex = remember {
+    /*val mFirstVisibleItemIndex = remember {
         derivedStateOf {
             mealLazyListState.firstVisibleItemIndex
         }
     }
-//    Log.d("TAG", "list.size: ${list.size} - mFirstVisibleItemIndex: ${mFirstVisibleItemIndex.value}")
-//    onScrollEvent(list.size - 1 == mFirstVisibleItemIndex.value)
+    Log.d("TAG", "list.size: ${list.size} - mFirstVisibleItemIndex: ${mFirstVisibleItemIndex.value}")
+    onScrollEvent(list.size - 1 == mFirstVisibleItemIndex.value)*/
 
 
     val nestedScrollConnection = remember {
@@ -81,11 +77,11 @@ fun HomeMealList(
             override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
 
                 val delta = available.y
-                val isScrollDown = delta > 0
-//                Log.d("TAG", "isScrollDown: $isScrollDown")
+                val isScrolled = delta > 0
+                Log.d(HOME_SCREEN_TAG, "isScrolled: $isScrolled")
 
 //                if(mFirstVisibleItemIndex.value > 0) {
-                    onScrollEvent(isScrollDown)
+                    hideBottomNavEvent(isScrolled)
 //                }
                 return super.onPreScroll(available, source)
             }
@@ -117,7 +113,7 @@ fun HomeMealList(
                     model,
                     onClickEvent = onClickEvent,
                     hideBottomNav = hideBottomNav,
-                    onScrollEvent = onScrollEvent
+                    onScrollEvent = hideBottomNavEvent
                 )
             }
         }, modifier = Modifier.nestedScroll(nestedScrollConnection), state = mealLazyListState)
@@ -140,8 +136,8 @@ fun HomeMealListItem(
 
                 onClickEvent(index, model)
 
-                val mHideBottomNav = !hideBottomNav
-                onScrollEvent(mHideBottomNav)
+//                val mHideBottomNav = !hideBottomNav
+//                onScrollEvent(mHideBottomNav)
 
             }
             .padding(top = 12.dp)

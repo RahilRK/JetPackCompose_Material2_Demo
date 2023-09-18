@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -25,16 +24,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
+import com.example.jetpackcompose_material2_demo.data.remoteModel.Meal
 import com.example.jetpackcompose_material2_demo.mealAppUi.component.AreaList
 import com.example.jetpackcompose_material2_demo.mealAppUi.component.AreaWiseMealList
 import com.example.jetpackcompose_material2_demo.mealAppUi.component.LoadingDialog
 import com.example.jetpackcompose_material2_demo.mealAppUi.component.TopBar
 import com.example.jetpackcompose_material2_demo.mealAppUi.country_meal.state.AreaListState
-import com.example.jetpackcompose_material2_demo.mealAppUi.home.Header
-import com.example.jetpackcompose_material2_demo.mealAppUi.home.HomeScreenViewModel
-import com.example.jetpackcompose_material2_demo.mealAppUi.home.LoadCategoryList
 import com.example.jetpackcompose_material2_demo.mealAppUi.home.state.MealListState
 import com.example.jetpackcompose_material2_demo.ui.theme.bg_color
 import com.example.jetpackcompose_material2_demo.util.Constants
@@ -43,7 +38,7 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun CountryMealScreen(
-    navController: NavHostController = rememberNavController(),
+    onListItemClick: (model: Meal) -> Unit = {},
     hideBottomNav: Boolean = false,
     onScrollEvent: (hideBottomNav: Boolean) -> Unit = {},
 ) {
@@ -70,12 +65,13 @@ fun CountryMealScreen(
                             .padding(12.dp)
                     ) {
                         LoadAreaList(
+                            onListItemClick = onListItemClick,
                             hideBottomNav = hideBottomNav,
                             onScrollEvent = onScrollEvent
                         )
                     }
 
-                    if(mLoadingDialogueState) {
+                    if (mLoadingDialogueState) {
                         LoadingDialog()
                     }
                 }
@@ -86,6 +82,7 @@ fun CountryMealScreen(
 
 @Composable
 fun LoadAreaList(
+    onListItemClick: (model: Meal) -> Unit = {},
     viewModel: CountryScreenViewModel = hiltViewModel(),
     context: Context = LocalContext.current,
     hideBottomNav: Boolean = false,
@@ -113,6 +110,7 @@ fun LoadAreaList(
             }, countryLazyListState, mealLazyListState)
 
             LoadAreaWiseMealList(
+                onListItemClick = onListItemClick,
                 viewModel, context, mealLazyListState, hideBottomNav = hideBottomNav,
                 onScrollEvent = onScrollEvent
             )
@@ -139,6 +137,7 @@ fun LoadAreaList(
 
 @Composable
 fun LoadAreaWiseMealList(
+    onListItemClick: (model: Meal) -> Unit = {},
     viewModel: CountryScreenViewModel = hiltViewModel(),
     context: Context = LocalContext.current,
     mealLazyListState: LazyGridState = rememberLazyGridState(),
@@ -156,7 +155,8 @@ fun LoadAreaWiseMealList(
         is MealListState.Success -> {
             Log.d(Constants.COUNTRY_MEAL_SCREEN_TAG, "LoadAreaWiseMealList Success:")
             AreaWiseMealList(result.list, onClickEvent = { pos, model ->
-                Toast.makeText(context, model.strMeal, Toast.LENGTH_SHORT).show()
+
+                onListItemClick(model)
             }, mealLazyListState, hideBottomNav = hideBottomNav, onScrollEvent = onScrollEvent)
         }
 
