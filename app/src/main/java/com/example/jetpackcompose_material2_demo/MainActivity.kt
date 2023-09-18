@@ -51,6 +51,7 @@ import androidx.constraintlayout.compose.ChainStyle
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.ConstraintSet
 import androidx.constraintlayout.compose.Dimension
+import com.example.jetpackcompose_material2_demo.mealAppUi.login.LoginScreen
 import com.example.jetpackcompose_material2_demo.mealNavigation.Navigation
 import com.example.jetpackcompose_material2_demo.ui.theme.JetPackCompose_Material2_DemoTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -69,7 +70,8 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colors.background
                 ) {
 //                    Greeting("Android")
-                    Navigation()
+//                    Navigation()
+                    LoginScreen()
                 }
             }
 //            NavigationGraph(navController = rememberNavController())
